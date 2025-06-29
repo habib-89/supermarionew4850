@@ -15,6 +15,7 @@ bool rightPressed = false;
 bool leftPressed = false;
 int moveSpeed = 10;
 bool gameOver = false;
+
 bool isPaused = false;
 
 #define MENU 0
@@ -106,7 +107,7 @@ void populate_run_images()
 
     for (int i = 0; i < 8; i++)
     {
-        sprintf(run_idle[i], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Run%03d.png", i);
+        sprintf(run_idle[i], "Game Project Pic/Run%03d.png", i);
     }
 }
 
@@ -174,8 +175,8 @@ void loadResources()
 {
     // Load backgrounds for 3 levels   Level1BG.png
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
-    iLoadImage(&bg[2], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level2BG.jpg");
-    iLoadImage(&bg[3], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level3BG.jpg");
+    iLoadImage(&bg[2], "Game Project Pic/Level2BG.jpg");
+    iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
 
     // Resize all to fit screen
     for (int i = 1; i <= 3; i++)
@@ -190,7 +191,7 @@ void iDraw()
 
     if (gameState == FRONT_PAGE)
     {
-        iShowImage(0, 0, "c:/Users/user/OneDrive/Desktop/Game Project Pic/1st Cover003.bmp");
+        iShowImage(0, 0, "Game Project Pic/1st Cover003.bmp");
         iSetColor(0, 0, 0);
         iText(10, 10, "Press Enter to Continue or Click Main Menu", GLUT_BITMAP_HELVETICA_18);
         return;
@@ -198,7 +199,7 @@ void iDraw()
     else if(gameState == MENU)
     {
 
-        iShowImage(0, 0,"c:/Users/user/OneDrive/Desktop/Game Project Pic/2nd cover003.png");
+        iShowImage(0, 0,"Game Project Pic/2nd cover003.png");
 
         iSetColor(0, 0, 0);
         iText(10, 10, "Press e to Exit or Click Exit button.", GLUT_BITMAP_HELVETICA_18);
@@ -213,7 +214,7 @@ void iDraw()
     {
         iClear();
 
-        iShowImage(0, 0,"c:/Users/user/OneDrive/Desktop/Game Project Pic/Help Cover001.png");
+        iShowImage(0, 0,"Game Project Pic/Help Cover001.png");
 
         iSetColor(0, 0, 0);
         iText(300, 450, "HELP", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -233,7 +234,7 @@ void iDraw()
     else if (gameState == LEVEL_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level BG001.png");   // optional background
+        iShowImage(0, 0, "Game Project Pic/Level BG001.png");   // optional background
 
 
     }
