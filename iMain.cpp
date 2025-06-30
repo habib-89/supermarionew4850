@@ -6,7 +6,7 @@ using namespace std;
 int pic_x=320, pic_y=90;
 int idle_idx = 0;
 char run_idle[18][100];
-// int groundY = 100;              // Ground level
+// int groundY = 100;           // Ground level
 int jump = 0;                   // Jump flag
 int jumpSpeed = 0;              // Current vertical speed
 int gravity = 1;                // Gravity strength
@@ -15,7 +15,6 @@ bool rightPressed = false;
 bool leftPressed = false;
 int moveSpeed = 10;
 bool gameOver = false;
-
 bool isPaused = false;
 
 #define MENU 0
@@ -24,9 +23,15 @@ bool isPaused = false;
 #define FRONT_PAGE -1
 #define HELP 3
 #define LEVEL_SELECT  4      // <-- new
+#define GAME_WIN 5
+#define LEVEL_COMPLETE 10
+
+
 
 int gameState = FRONT_PAGE;
 int gameStartTime = 0;
+int levelCompleteTime = 0;  // time when level completed
+
 
 // int bgX = 0;
 const int bgScrollSpeed = 2;
@@ -107,7 +112,7 @@ void populate_run_images()
 
     for (int i = 0; i < 8; i++)
     {
-        sprintf(run_idle[i], "Game Project Pic/Run%03d.png", i);
+        sprintf(run_idle[i], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Run%03d.png", i);
     }
 }
 
@@ -121,39 +126,13 @@ void update_run()
 function iDraw() is called again and again by the system.
 */
 
-/*
-void activity(int current_state){
-    if( animation != current_state){
-        animation =current_state;
-        if(current_state == 0) iChangeSpriteFrames(&golem,golem_idle,1);
-        if(current_state == 1) iChangeSpriteFrames(&golem,golem_run_frames,7);
-        if(current_state == 2) iChangeSpriteFrames(&golem,golem_jump_frames,11);
-    }
 
-}
-
-
-void loadResources(){
-    iLoadFramesFromFolder(golem_idle,"c:/Users/user/OneDrive/Desktop/Game Project Pic/OneDrive_30_6-12-2025/walk");
-    iLoadFramesFromFolder(golem_run_frames,"c:/Users/user/OneDrive/Desktop/Game Project Pic/OneDrive_30_6-12-2025/run_2");
-    iLoadFramesFromFolder(golem_jump_frames,"c:/Users/user/OneDrive/Desktop/Game Project Pic/OneDrive_30_6-12-2025/jump");
-    iInitSprite(&golem,-1);
-    // if(direction==0){
-    iChangeSpriteFrames(&golem,golem_idle,1);
-    // }
-    // else if(direction==1){
-    //     iChangeSpriteFrames(&golem,golem_run_frames,7);
-    // }
-    iSetSpritePosition(&golem,70,122);
-}
-*/
 void saveGameState()
 {
     prev_pic_x = pic_x;
     prev_pic_y = pic_y;
     prev_jump = jump;
     prev_jumpSpeed = jumpSpeed;
-    // prev_bgX = bgX;
     prev_gameOver = gameOver;
     prev_gameStartTime = gameStartTime;
     hasPreviousGame = true;
@@ -166,7 +145,6 @@ void loadGameState()
     pic_y = prev_pic_y;
     jump = prev_jump;
     jumpSpeed = prev_jumpSpeed;
-    //  bgX = prev_bgX;
     gameOver = prev_gameOver;
     gameStartTime = prev_gameStartTime;
 }
@@ -175,8 +153,8 @@ void loadResources()
 {
     // Load backgrounds for 3 levels   Level1BG.png
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
-    iLoadImage(&bg[2], "Game Project Pic/Level2BG.jpg");
-    iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
+    iLoadImage(&bg[2], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level2BG.jpg");
+    iLoadImage(&bg[3], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level3BG.jpg");
 
     // Resize all to fit screen
     for (int i = 1; i <= 3; i++)
@@ -191,7 +169,7 @@ void iDraw()
 
     if (gameState == FRONT_PAGE)
     {
-        iShowImage(0, 0, "Game Project Pic/1st Cover003.bmp");
+        iShowImage(0, 0, "c:/Users/user/OneDrive/Desktop/Game Project Pic/1st Cover003.bmp");
         iSetColor(0, 0, 0);
         iText(10, 10, "Press Enter to Continue or Click Main Menu", GLUT_BITMAP_HELVETICA_18);
         return;
@@ -199,7 +177,7 @@ void iDraw()
     else if(gameState == MENU)
     {
 
-        iShowImage(0, 0,"Game Project Pic/2nd cover003.png");
+        iShowImage(0, 0,"c:/Users/user/OneDrive/Desktop/Game Project Pic/2nd cover003.png");
 
         iSetColor(0, 0, 0);
         iText(10, 10, "Press e to Exit or Click Exit button.", GLUT_BITMAP_HELVETICA_18);
@@ -214,7 +192,7 @@ void iDraw()
     {
         iClear();
 
-        iShowImage(0, 0,"Game Project Pic/Help Cover001.png");
+        iShowImage(0, 0,"c:/Users/user/OneDrive/Desktop/Game Project Pic/Help Cover001.png");
 
         iSetColor(0, 0, 0);
         iText(300, 450, "HELP", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -234,7 +212,7 @@ void iDraw()
     else if (gameState == LEVEL_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "Game Project Pic/Level BG001.png");   // optional background
+        iShowImage(0, 0, "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level BG001.png");   // optional background
 
 
     }
@@ -246,18 +224,9 @@ void iDraw()
 
 
         iClear();
-//  loadResources();
-        // iShowLoadedImage(bgX, 0, &bg);
-        //  iShowLoadedImage(bgX + 800, 0, &bg);
         iShowLoadedImage(0, 0, &bg[currentLevel]);
-
-        //	iWrapImage(&bg, speed);
         iText(70, 30, "Press P to pause and resume.", GLUT_BITMAP_TIMES_ROMAN_24);
         iText(70, 10, "Press M to go to Menu.", GLUT_BITMAP_TIMES_ROMAN_24);
-
-// Character
-     //   iShowImage(pic_x, pic_y,  run_idle[idle_idx]);
-
 
         if (gameOver)
         {
@@ -272,17 +241,13 @@ void iDraw()
             {
                 int tile = tileMap[y][x];
 
-                // Calculate the position to draw the tile on the screen
-                // The map is drawn from the bottom-up, so we invert the y-axis
-              //  int drawX = x * 30; // 30 is the width of a tile
-              int drawX = x * 30 - cameraX;  // Subtract cameraX for side-scrolling
+                int drawX = x * 30 - cameraX;  // Subtract cameraX for side-scrolling
 
                 int drawY = ((MAP_HEIGHT - 1 - y) * 30); // 30 is the height of a tile
 
                 if (tile == 1) // Coin Block
                 {
-                   // iShowImage(drawX, drawY, "assets/Level1image/Coin003.png");
-                     // Check if Mario collects coin
+
                     if (pic_x + 30 > drawX && pic_x < drawX + 30 && pic_y + 30 > drawY && pic_y < drawY + 30)
                     {
                         coinCount++;    // Increase coin count
@@ -309,7 +274,7 @@ void iDraw()
                 }
                 else if (tile == 5) // Ground 2 block Decorative Ground
                 {
-                     iShowImage(drawX, drawY, "assets/Level1image/Ground_02.png");
+                    iShowImage(drawX, drawY, "assets/Level1image/Ground_02.png");
                 }
                 else if (tile == 6) // Ground 3 block Wooden Crate
                 {
@@ -323,7 +288,7 @@ void iDraw()
                 {
                     iShowImage(drawX, drawY, "assets/Level1image/Ground_05.png");
                 }
-                 else if (tile == 9) // Ground up 3 block Spikes
+                else if (tile == 9) // Ground up 3 block Spikes
                 {
                     iShowImage(drawX, drawY, "assets/Level1image/Ground_07.png");
                 }
@@ -332,30 +297,59 @@ void iDraw()
                     iShowImage(drawX, drawY, "assets/Level1image/Ground_08.png");
                 }
                 else if (tile == WIN_FLAG_TILE) // Win flag tile
-{
-    iShowImage(drawX, drawY, "assets/Level1image/Wooden_Barrel.png");
+                {
+                    iShowImage(drawX, drawY, "assets/Level1image/Wooden_Barrel.png");
 
-    // Check collision with Mario
-    if (pic_x + 30 > drawX && pic_x < drawX + 30 &&
-        pic_y + 30 > drawY && pic_y < drawY + 30)
-    {
-        reachedWinFlag = true;
-    }
-}
+                    // Check collision with Mario
+                    if (pic_x + 30 > drawX && pic_x < drawX + 30 &&
+                            pic_y + 30 > drawY && pic_y < drawY + 30)
+                    {
+                        reachedWinFlag = true;
+                    }
+                }
             }
         }
-       
-     iShowImage(pic_x, pic_y,  run_idle[idle_idx]);
+
+        iShowImage(pic_x, pic_y,  run_idle[idle_idx]);
 
 
-char scoreText[100];
-sprintf(scoreText, "Score: %d  Coins: %d", score, coinCount);
- iSetColor(255, 255, 255);
-iText(10, 480, scoreText, GLUT_BITMAP_HELVETICA_18);
-
-      
-
+        char scoreText[100];
+        sprintf(scoreText, "Score: %d  Coins: %d", score, coinCount);
+        iSetColor(255, 255, 255);
+        iText(10, 480, scoreText, GLUT_BITMAP_HELVETICA_18);
     }
+    else if (gameState == GAME_WIN)
+    {
+        iClear();
+        // iShowImage(0, 0, "assets/Level1image/GameWinBG.jpg"); // <-- use your own image path
+
+        iSetColor(255, 215, 0);
+        iText(280, 300, "Congratulations!", GLUT_BITMAP_TIMES_ROMAN_24);
+        iText(240, 260, "You completed all levels!", GLUT_BITMAP_HELVETICA_18);
+        iText(230, 180, "Press 'M' to return to Main Menu.", GLUT_BITMAP_HELVETICA_18);
+        iText(230, 150, "Press 'E' to exit.", GLUT_BITMAP_HELVETICA_18);
+    }
+    else if (gameState == LEVEL_COMPLETE)
+{
+    iClear();
+    iSetColor(0, 255, 0);
+    char levelText[100];
+    sprintf(levelText, "Level %d Complete!", currentLevel);
+    iText(300, 300, levelText, GLUT_BITMAP_TIMES_ROMAN_24);
+
+    iSetColor(100, 100, 100);
+    iFilledRectangle(280, 200, 200, 50);
+    iSetColor(255, 255, 255);
+    iText(330, 220, "Next Level", GLUT_BITMAP_HELVETICA_18);
+
+    iSetColor(150, 150, 150);
+    iFilledRectangle(280, 130, 200, 50);
+    iSetColor(255, 255, 255);
+    iText(320, 150, "Back to Menu", GLUT_BITMAP_HELVETICA_18);
+}
+
+
+
 }
 
 void iUpdate()
@@ -364,21 +358,69 @@ void iUpdate()
         return;
 
     // Horizontal movement while in air or ground
-   if (rightPressed)
-{
-    if (pic_x < 400)
-        pic_x += moveSpeed;
-    else
-        cameraX += moveSpeed;
-}
+    /*
+    if (rightPressed)
+    {
+        if (pic_x < 400)
+            pic_x += moveSpeed;
+        else
+            cameraX += moveSpeed;
+    }
+            */
+    int flagVisible = 0;
 
-if (leftPressed)
-{
-    if (cameraX > 0)
-        cameraX -= moveSpeed;
-    else if (pic_x > 100)
-        pic_x -= moveSpeed;
-}
+// Step 1: Search for visible flag on screen
+    for (int y = 0; y < MAP_HEIGHT; y++)
+    {
+        for (int x = 0; x < MAP_WIDTH; x++)
+        {
+            if (tileMap[y][x] == WIN_FLAG_TILE)
+            {
+                int flagX = x * 30;
+                if (flagX - cameraX >= 0 && flagX - cameraX <= 800)
+                {
+                    flagVisible = 1;
+                    break;
+                }
+            }
+        }
+        if (flagVisible) break;
+    }
+
+// Step 2: Move logic
+    if (rightPressed)
+    {
+        if (!flagVisible)
+        {
+            cameraX += moveSpeed;
+        }
+        else
+        {
+            if (pic_x + 30 < 800)  // Let Mario move manually to right side
+                pic_x += moveSpeed;
+        }
+    }
+
+
+    if (leftPressed)
+    {
+        if (cameraX > 0)
+            cameraX -= moveSpeed;
+        else if (pic_x > 100)
+            pic_x -= moveSpeed;
+    }
+
+    if (rightPressed)
+    {
+        cameraX += moveSpeed;
+    }
+
+    if (leftPressed)
+    {
+        if (cameraX > 0)
+            cameraX -= moveSpeed;
+    }
+
 
 
     // Jump logic
@@ -404,6 +446,21 @@ if (leftPressed)
             keyHoldCounter = 0;
         }
     }
+   if (reachedWinFlag)
+{
+    reachedWinFlag = false;
+    gameState = LEVEL_COMPLETE;
+    levelCompleteTime = time(NULL);
+}
+
+
+
+    int maxCameraX = MAP_WIDTH * 30 - 800; // total map width in pixels - screen width
+    if (cameraX < 0) cameraX = 0;
+    if (cameraX > maxCameraX) cameraX = maxCameraX;
+
+
+
 }
 
 
@@ -445,15 +502,7 @@ void iMouse(int button, int state, int mx, int my)
 
         else if (gameState == MENU)
         {
-            /*
-            // New Game
-            if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
-            {
-                gameState = GAME;
-                gameOver = false;
-                gameStartTime = time(NULL);
-            }
-                */
+
             // New Game
             if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
             {
@@ -520,6 +569,32 @@ void iMouse(int button, int state, int mx, int my)
                 gameState = MENU;
             }
         }
+        else if (gameState == LEVEL_COMPLETE)
+{
+    // Next Level button
+    if (mx >= 280 && mx <= 480 && my >= 200 && my <= 250)
+    {
+        if (currentLevel < maxLevel)
+        {
+            currentLevel++;
+            loadLevelFromFile(currentLevel);
+            pic_x = 320;
+            pic_y = 90;
+            cameraX = 0;
+            gameState = GAME;
+        }
+        else
+        {
+            gameState = GAME_WIN;
+        }
+    }
+    // Back to Menu button
+    else if (mx >= 280 && mx <= 480 && my >= 130 && my <= 180)
+    {
+        gameState = MENU;
+    }
+}
+
 
         // For debug (optional)
         printf(" %d %d\n", mx, my);
@@ -583,7 +658,6 @@ void iKeyboard(unsigned char key)
         }
         else if (key == 'r' || key == 'R')
         {
-            // bgX=0;
             gameOver = false;
             pic_x = 320;
             pic_y = 90;
@@ -605,10 +679,43 @@ void iKeyboard(unsigned char key)
 
 
     }
+    else if (gameState == GAME_WIN)
+    {
+        if (key == 'm' || key == 'M')
+        {
+            gameState = MENU;
+        }
+        else if (key == 'e' || key == 'E')
+        {
+            exit(0);
+        }
+    }
+    else if (gameState == LEVEL_COMPLETE)
+{
+    if (key == 'n' || key == 'N')
+    {
+        if (currentLevel < maxLevel)
+        {
+            currentLevel++;
+            loadLevelFromFile(currentLevel);
+            pic_x = 320;
+            pic_y = 90;
+            cameraX = 0;
+            gameState = GAME;
+        }
+        else
+        {
+            gameState = GAME_WIN;
+        }
+    }
+    else if (key == 'm' || key == 'M')
+    {
+        gameState = MENU;
+    }
 }
 
 
-
+}
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
 keys, home, end, pg up, pg down, arraows etc. you have to use
@@ -620,6 +727,7 @@ GLUT_KEY_PAGE_UP, GLUT_KEY_PAGE_DOWN, GLUT_KEY_HOME, GLUT_KEY_END,
 GLUT_KEY_INSERT */
 void iSpecialKeyboard(unsigned char key)
 {
+    /*
     if (key == GLUT_KEY_RIGHT)
     {
         if (pic_x < 400) // character moves normally until middle
@@ -637,6 +745,7 @@ void iSpecialKeyboard(unsigned char key)
         //   else if (bgX < 0)
         //   bgX += bgScrollSpeed;
     }
+        */
     switch (key)
     {
     case GLUT_KEY_UP:
@@ -701,16 +810,10 @@ void iAnim(){
 }
 */
 
-
-
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
     // place your own initialization codes here.
-    // pic_x = 330;
-    //   pic_y = 100;
-//  glutSpecialUpFunc(iSpecialKeyboardUp);
-    // generateLevels();
     populate_run_images();
     loadResources();
     iSetTimer(100, update_run);
@@ -720,8 +823,6 @@ int main(int argc, char *argv[])
     //iLoadImage(&frontPageImage, "c:/Users/user/OneDrive/Desktop/Game Project Pic/1st Cover003.bmp");
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
-
-
     iInitialize(800, 500, "Super Mario");
     return 0;
 }
