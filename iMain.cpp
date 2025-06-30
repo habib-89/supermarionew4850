@@ -69,7 +69,7 @@ bool reachedWinFlag = false;
 void loadLevelFromFile(int level)
 {
     char filename[100];
-    sprintf(filename, "assets/Level/level%d.txt", level);  // or just "level1.txt" if in main folder
+    sprintf(filename, "assets/Level/level%d.txt", level);  
 
     FILE* fp = fopen(filename, "r");
     if (fp == NULL)
@@ -235,8 +235,6 @@ void iDraw()
     {
         iClear();
         iShowImage(0, 0, "Game Project Pic/Level BG001.png");   // optional background
-
-
     }
 
 
