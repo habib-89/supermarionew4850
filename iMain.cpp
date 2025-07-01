@@ -74,7 +74,7 @@ bool reachedWinFlag = false;
 void loadLevelFromFile(int level)
 {
     char filename[100];
-    sprintf(filename, "assets/Level/level%d.txt", level);  // or just "level1.txt" if in main folder
+    sprintf(filename, "assets/Level/level%d.txt", level);  
 
     FILE* fp = fopen(filename, "r");
     if (fp == NULL)
@@ -169,7 +169,7 @@ void iDraw()
 
     if (gameState == FRONT_PAGE)
     {
-        iShowImage(0, 0, "c:/Users/user/OneDrive/Desktop/Game Project Pic/1st Cover003.bmp");
+        iShowImage(0, 0, "assets/Game Project Pic/1st Cover002.png");
         iSetColor(0, 0, 0);
         iText(10, 10, "Press Enter to Continue or Click Main Menu", GLUT_BITMAP_HELVETICA_18);
         return;
@@ -212,7 +212,7 @@ void iDraw()
     else if (gameState == LEVEL_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level BG001.png");   // optional background
+        iShowImage(0, 0, "Game Project Pic/Level BG001.png");   // optional background
 
 
     }
