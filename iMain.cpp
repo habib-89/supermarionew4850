@@ -1,6 +1,7 @@
 #include "iGraphics.h"
 #include <iostream>
 #include "iSound.h"
+#include<windows.h>
 using namespace std;
 
 int pic_x=320, pic_y=90;
@@ -74,7 +75,7 @@ bool reachedWinFlag = false;
 void loadLevelFromFile(int level)
 {
     char filename[100];
-    sprintf(filename, "assets/Level/level%d.txt", level);  
+    sprintf(filename, "assets/Level/level%d.txt", level);  // or just "level1.txt" if in main folder
 
     FILE* fp = fopen(filename, "r");
     if (fp == NULL)
@@ -112,7 +113,7 @@ void populate_run_images()
 
     for (int i = 0; i < 8; i++)
     {
-        sprintf(run_idle[i], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Run%03d.png", i);
+        sprintf(run_idle[i], "assets/Run/Run%03d.png", i);
     }
 }
 
@@ -152,9 +153,9 @@ void loadGameState()
 void loadResources()
 {
     // Load backgrounds for 3 levels   Level1BG.png
-    iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
-    iLoadImage(&bg[2], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level2BG.jpg");
-    iLoadImage(&bg[3], "c:/Users/user/OneDrive/Desktop/Game Project Pic/Level3BG.jpg");
+    iLoadImage(&bg[1], "assets/GameBG/BGL1001.png");
+    iLoadImage(&bg[2], "assets/GameBG/Level2BG.jpg");
+    iLoadImage(&bg[3], "assets/GameBG/Level3BG.jpg");
 
     // Resize all to fit screen
     for (int i = 1; i <= 3; i++)
@@ -169,7 +170,7 @@ void iDraw()
 
     if (gameState == FRONT_PAGE)
     {
-        iShowImage(0, 0, "assets/Game Project Pic/1st Cover002.png");
+        iShowImage(0, 0, "assets/GameBG/1st Cover002.png");
         iSetColor(0, 0, 0);
         iText(10, 10, "Press Enter to Continue or Click Main Menu", GLUT_BITMAP_HELVETICA_18);
         return;
@@ -177,7 +178,7 @@ void iDraw()
     else if(gameState == MENU)
     {
 
-        iShowImage(0, 0,"c:/Users/user/OneDrive/Desktop/Game Project Pic/2nd cover003.png");
+        iShowImage(0, 0,"assets/GameBG/2nd cover003.png");
 
         iSetColor(0, 0, 0);
         iText(10, 10, "Press e to Exit or Click Exit button.", GLUT_BITMAP_HELVETICA_18);
@@ -192,7 +193,7 @@ void iDraw()
     {
         iClear();
 
-        iShowImage(0, 0,"c:/Users/user/OneDrive/Desktop/Game Project Pic/Help Cover001.png");
+        iShowImage(0, 0,"assets/GameBG/Help Cover001.png");
 
         iSetColor(0, 0, 0);
         iText(300, 450, "HELP", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -212,7 +213,7 @@ void iDraw()
     else if (gameState == LEVEL_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "Game Project Pic/Level BG001.png");   // optional background
+        iShowImage(0, 0, "assets/GameBG/Level BG001.png");   // optional background
 
 
     }
@@ -813,6 +814,7 @@ void iAnim(){
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
+   
     // place your own initialization codes here.
     populate_run_images();
     loadResources();
