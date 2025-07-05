@@ -1,7 +1,11 @@
 #include "iGraphics.h"
 #include <iostream>
 #include "iSound.h"
+<<<<<<< HEAD
 #include<windows.h>
+=======
+#include <windows.h>
+>>>>>>> ceb906be278e06804ffb44cb07588b6c4ed84f12
 using namespace std;
 
 int pic_x=320, pic_y=90;
@@ -96,6 +100,7 @@ void loadLevelFromFile(int level)
 }
 
 /*
+
 Image bg;
 Image golem_idle[2];
 Image golem_run_frames[7];
@@ -107,6 +112,7 @@ int speed=0;
 int golem_running=0;
 int animation=-1;// 0 idle, 1 run, 2 jump
 int direction=0;
+
 */
 void populate_run_images()
 {
@@ -149,7 +155,6 @@ void loadGameState()
     gameOver = prev_gameOver;
     gameStartTime = prev_gameStartTime;
 }
-
 void loadResources()
 {
     // Load backgrounds for 3 levels   Level1BG.png
@@ -192,7 +197,10 @@ void iDraw()
     else if (gameState == HELP)
     {
         iClear();
+<<<<<<< HEAD
 
+=======
+>>>>>>> ceb906be278e06804ffb44cb07588b6c4ed84f12
         iShowImage(0, 0,"assets/GameBG/Help Cover001.png");
 
         iSetColor(0, 0, 0);
@@ -349,8 +357,6 @@ void iDraw()
     iText(320, 150, "Back to Menu", GLUT_BITMAP_HELVETICA_18);
 }
 
-
-
 }
 
 void iUpdate()
@@ -385,7 +391,7 @@ void iUpdate()
                 }
             }
         }
-        if (flagVisible) break;
+  if (flagVisible) break;
     }
 
 // Step 2: Move logic
@@ -410,13 +416,12 @@ void iUpdate()
         else if (pic_x > 100)
             pic_x -= moveSpeed;
     }
-
-    if (rightPressed)
+  if (rightPressed)
     {
         cameraX += moveSpeed;
     }
 
-    if (leftPressed)
+  if (leftPressed)
     {
         if (cameraX > 0)
             cameraX -= moveSpeed;
@@ -448,7 +453,7 @@ void iUpdate()
         }
     }
    if (reachedWinFlag)
-{
+   {
     reachedWinFlag = false;
     gameState = LEVEL_COMPLETE;
     levelCompleteTime = time(NULL);
@@ -463,6 +468,10 @@ void iUpdate()
 
 
 }
+
+
+
+
 
 
 
