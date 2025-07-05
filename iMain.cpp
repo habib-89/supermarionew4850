@@ -197,10 +197,6 @@ void iDraw()
     else if (gameState == HELP)
     {
         iClear();
-<<<<<<< HEAD
-
-=======
->>>>>>> ceb906be278e06804ffb44cb07588b6c4ed84f12
         iShowImage(0, 0,"assets/GameBG/Help Cover001.png");
 
         iSetColor(0, 0, 0);
