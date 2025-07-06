@@ -6,6 +6,15 @@ using namespace std;
 /*
 function iDraw() is called again and again by the system.
 */
+#define MENU 0
+#define GAME 1
+#define GAME_OVER 2
+#define FRONT_PAGE -1
+#define HELP 3
+#define LEVEL_SELECT 4
+#define MAP_WIDTH 68
+#define MAP_HEIGHT 17
+
 
 int pic_x, pic_y;
 int golem_idx = 0;
@@ -19,13 +28,13 @@ int jump_height = 15;
 int ground = 122;
 int direction = 0;
 int tile_x = 0, tile_y = ground;
-int tile_width = 37, tile_height = 35;
+int tile_width = 30, tile_height = 30;
 Image bg[4];
 Image golem_idle[2];
 Image golem_run_frames[7];
 Image golem_jump_frames[11];
-Image tile_set[1];
-Sprite tiles[100];
+Image tile_set[2];
+Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
 int speed = 0;
 int golem_running = 0;
@@ -34,38 +43,23 @@ bool going_right = true;
 bool gameOver = false;
 bool isPaused = false;
 int bgSoundIdx = -1;
-#define MENU 0
-#define GAME 1
-#define GAME_OVER 2
-#define FRONT_PAGE -1
-#define HELP 3
-#define LEVEL_SELECT  4
-#define MAP_WIDTH 100
-#define MAP_HEIGHT 16
-
-int tileMap[MAP_HEIGHT][MAP_WIDTH];
+char tileMap[MAP_HEIGHT][MAP_WIDTH];
 int gameState = FRONT_PAGE;
 int gameStartTime = 0;
 
 const int bgScrollSpeed = 2;
 
-
-char tile_array[100][100] ;//={"____****_____*___***______"} ;
-
 int tile_idx = 0;
 int scroll_x = 0;
-
 
 bool hasPreviousGame = false;
 int prev_pic_x, prev_pic_y;
 int prev_jump, prev_jumpSpeed;
-// int prev_bgX;
 bool prev_gameOver;
 int prev_gameStartTime;
 
-int  currentLevel = 1;
+int currentLevel = 1;
 const int maxLevel = 3;
-
 
 void load_bg()
 {
@@ -81,51 +75,65 @@ void load_bg()
     }
 }
 
-
-
 void loadLevelFromFile(int level)
 {
     char filename[100];
-    sprintf(filename, "levels(rafsan)/level_%d.txt", level);  
+    sprintf(filename, "levels(rafsan)/level_%d.txt", level);
 
-    FILE* fp = fopen(filename, "r");
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL)
     {
         printf("Failed to open %s\n", filename);
         return;
     }
-    int x = 0;
-    char ch;
-    while (x < MAP_WIDTH && fscanf(fp, "%c", &ch) == 1) {
-        if (ch == '\n') continue;  // skip newline
-        tile_array[0][x++] = ch;
-    }
 
-
-    // new code
-
-    // iLoadFramesFromFolder(tile_set, "Game Project Pic/tiile");
-    iLoadImage(&tile_set[0],"Game Project Pic/tiile/tile000.png");
-    // (tile_set,"assets/Level1image/Brick_01.png");
-
-    for (int i = 0; i < 28; i++)
-    {
-        if (tile_array[0][i] == '_')
-            tile_x += 20;
-        else if (tile_array[0][i] == '*')
-        {
-            iInitSprite(&tiles[tile_idx], -1);
-            iChangeSpriteFrames(&tiles[tile_idx], tile_set, 1);
-            iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
-            tile_x += 20;
-            tile_idx++;
+    for(int i =0; i<MAP_HEIGHT ; i++){
+        for(int j =0 ; j<MAP_WIDTH ; j++){
+            fscanf(fp, "%c", &tileMap[i][j]);
         }
     }
-    //
 
     fclose(fp);
-}
 
+    // for(int i =0; i<MAP_HEIGHT ; i++){
+    //     for(int j =0 ; j<MAP_WIDTH ; j++){
+    //         printf( "%c", tileMap[i][j]);
+    //     }
+    // }
+
+    iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png");
+    iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");
+
+    tile_idx = 0;
+    tile_x =0;
+    const int h =  tile_height * ( MAP_HEIGHT-1 );
+    for (int y = 0; y < MAP_HEIGHT; y++)
+    {  
+        tile_y = h - tile_height* y;
+        tile_x = 0;
+        for (int x = 0; x < MAP_WIDTH; x++)
+        {   
+            if (tileMap[y][x] == '*')
+            {
+                iInitSprite(&tiles[tile_idx], -1);
+                iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
+                iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+                tile_x += tile_width;
+                tile_idx++;
+            }
+            if (tileMap[y][x] == 'o')
+            {
+                iInitSprite(&tiles[tile_idx], -1);
+                iChangeSpriteFrames(&tiles[tile_idx], &tile_set[1], 1);
+                iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+                tile_x += tile_width;
+                tile_idx++;
+            }
+            else if (tileMap[y][x] == '_' ) tile_x += tile_width;
+        }
+        printf("%d %d ",tile_x,tile_y);
+    }
+}
 
 void loadResources()
 {
@@ -135,11 +143,7 @@ void loadResources()
     iInitSprite(&golem, -1);
     iChangeSpriteFrames(&golem, golem_idle, 1);
     iSetSpritePosition(&golem, 70, 122);
-
 }
-
-
-
 
 void saveGameState()
 {
@@ -154,7 +158,8 @@ void saveGameState()
 }
 void loadGameState()
 {
-    if (!hasPreviousGame) return;
+    if (!hasPreviousGame)
+        return;
 
     pic_x = prev_pic_x;
     pic_y = prev_pic_y;
@@ -164,7 +169,6 @@ void loadGameState()
     gameOver = prev_gameOver;
     gameStartTime = prev_gameStartTime;
 }
-
 
 void activity(int current_state)
 {
@@ -199,13 +203,15 @@ void update_jump()
     {
         golem.y += jump_speed;
         // new code
-        if (direction == 1)
+        if (direction == 1 && golem.x != 350)
         {
             golem.x += 3;
+            activity(1);
         }
-        else if (direction == -1)
+        else if (direction == -1 && golem.x != 350)
         {
             golem.x -= 3;
+            activity(1);
         }
         //
         jump_speed -= gravity;
@@ -216,7 +222,7 @@ void update_jump()
             jump_speed = 0;
             activity(1);
         }
-        if (golem.y <= ground)
+        else if (golem.y <= ground)
         {
             golem.y = ground;
             jump = 0;
@@ -281,7 +287,6 @@ void iSpecialKeyboard(unsigned char key)
             direction = 0;
             speed = 0;
         }
-
     }
 }
 void iDraw()
@@ -297,20 +302,19 @@ void iDraw()
 
     else if (gameState == MENU)
     {
-        iShowImage(0, 0,"Game Project Pic/2nd cover003.png");
+        iShowImage(0, 0, "Game Project Pic/2nd cover003.png");
 
         iSetColor(0, 0, 0);
         iText(10, 10, "Press e to Exit or Click Exit button.", GLUT_BITMAP_HELVETICA_18);
         iSetColor(0, 0, 0);
         iText(10, 40, "Press New game to start the game.", GLUT_BITMAP_HELVETICA_18);
-
     }
 
     else if (gameState == HELP)
     {
         iClear();
 
-        iShowImage(0, 0,"Game Project Pic/Help Cover001.png");
+        iShowImage(0, 0, "Game Project Pic/Help Cover001.png");
 
         iSetColor(0, 0, 0);
         iText(300, 450, "HELP", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -331,7 +335,7 @@ void iDraw()
     else if (gameState == LEVEL_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "Game Project Pic/Level BG001.png");   // optional background
+        iShowImage(0, 0, "Game Project Pic/Level BG001.png"); // optional background
     }
 
     else if (gameState == GAME)
@@ -347,11 +351,11 @@ void iDraw()
             iText(300, 250, "Game Over! Press R to Restart", GLUT_BITMAP_HELVETICA_18);
         }
         // new code
-        for (int i = 0; i < 28; i++)
+        for (int i = 0; i < tile_idx; i++)
         {
             iShowSprite(&tiles[i]);
         }
-        // 
+        //
     }
 }
 
@@ -403,10 +407,9 @@ void iMouse(int button, int state, int mx, int my)
             // New Game
             if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
             {
-                gameState = LEVEL_SELECT;   // <-- go to new screen instead of GAME
+                gameState = LEVEL_SELECT; // <-- go to new screen instead of GAME
             }
-            //Score
-
+            // Score
 
             // Help
             else if (mx >= 208 && mx <= 596 && my >= 114 && my <= 165)
@@ -440,21 +443,21 @@ void iMouse(int button, int state, int mx, int my)
             if (mx >= 58 && mx <= 369 && my >= 194 && my <= 244)
             {
                 currentLevel = 1;
-                loadLevelFromFile(currentLevel);  
+                loadLevelFromFile(currentLevel);
                 gameState = GAME;
             }
             // Level-2 button
             else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
             {
                 currentLevel = 2;
-                loadLevelFromFile(currentLevel);  
+                loadLevelFromFile(currentLevel);
                 gameState = GAME;
             }
             // Level-3 button
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
                 currentLevel = 3;
-                loadLevelFromFile(currentLevel);  
+                loadLevelFromFile(currentLevel);
                 gameState = GAME;
             }
         }
@@ -489,7 +492,7 @@ void iKeyboard(unsigned char key)
 {
     if (gameState == FRONT_PAGE)
     {
-        if (key == 13)   // Enter
+        if (key == 13) // Enter
         {
             gameState = MENU;
         }
@@ -533,11 +536,8 @@ void iKeyboard(unsigned char key)
             saveGameState();
             gameState = MENU;
         }
-
-
     }
 }
-
 
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
@@ -588,11 +588,10 @@ void iAnim()
         }
         else
         {
-            activity(0);
+            activity(1);
         }
-
-        iAnimateSprite(&golem);
     }
+    iAnimateSprite(&golem);
 }
 void animate_tile()
 {
@@ -618,7 +617,6 @@ int main(int argc, char *argv[])
     iSetTimer(20, update_jump);
     iInitialize(800, 500, "Super Mario");
     printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
-
 
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
