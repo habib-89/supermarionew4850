@@ -15,6 +15,9 @@ function iDraw() is called again and again by the system.
 #define MAP_WIDTH 68
 #define MAP_HEIGHT 17
 
+int golem_height = 76;
+int golem_width = 45;
+
 
 int pic_x, pic_y;
 int golem_idx = 0;
@@ -44,6 +47,7 @@ bool gameOver = false;
 bool isPaused = false;
 int bgSoundIdx = -1;
 char tileMap[MAP_HEIGHT][MAP_WIDTH];
+char tile_type[MAP_HEIGHT * MAP_WIDTH];
 int gameState = FRONT_PAGE;
 int gameStartTime = 0;
 
@@ -87,8 +91,10 @@ void loadLevelFromFile(int level)
         return;
     }
 
-    for(int i =0; i<MAP_HEIGHT ; i++){
-        for(int j =0 ; j<MAP_WIDTH ; j++){
+    for (int i = 0; i < MAP_HEIGHT; i++)
+    {
+        for (int j = 0; j < MAP_WIDTH; j++)
+        {
             fscanf(fp, "%c", &tileMap[i][j]);
         }
     }
@@ -101,39 +107,43 @@ void loadLevelFromFile(int level)
     //     }
     // }
 
-    iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png");
-    iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");
+    iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
+    iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
 
     tile_idx = 0;
-    tile_x =0;
-    const int h =  tile_height * ( MAP_HEIGHT-1 );
+    tile_x = 0;
+    const int h = tile_height * (MAP_HEIGHT - 1);
     for (int y = 0; y < MAP_HEIGHT; y++)
-    {  
-        tile_y = h - tile_height* y;
+    {
+        tile_y = h - tile_height * y;
         tile_x = 0;
         for (int x = 0; x < MAP_WIDTH; x++)
-        {   
+        {
             if (tileMap[y][x] == '*')
             {
                 iInitSprite(&tiles[tile_idx], -1);
                 iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
                 iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
                 tile_x += tile_width;
+                tile_type[tile_idx] = '*';
                 tile_idx++;
             }
-            if (tileMap[y][x] == 'o')
+            else if (tileMap[y][x] == 'o')
             {
                 iInitSprite(&tiles[tile_idx], -1);
                 iChangeSpriteFrames(&tiles[tile_idx], &tile_set[1], 1);
                 iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
                 tile_x += tile_width;
+                tile_type[tile_idx] = 'o';
                 tile_idx++;
             }
-            else if (tileMap[y][x] == '_' ) tile_x += tile_width;
+            else if (tileMap[y][x] == '_')
+                tile_x += tile_width;
+            printf("%d %d ", tile_x, tile_y);
         }
-        printf("%d %d ",tile_x,tile_y);
     }
 }
+
 
 void loadResources()
 {
@@ -184,21 +194,21 @@ void activity(int current_state)
     }
 }
 
-bool collision(Sprite *s)
+int collision_idx()
 {
-    for (int i = 0; i < 28; i++)
+    for (int i = 0; i < tile_idx; i++)
     {
-        if (iCheckCollision(s, &tiles[i]))
-        {
-            return true;
+        if(golem.y >ground && iCheckCollision(&golem,&tiles[i])){
+            return i;
         }
     }
-    return false;
+    return -1;
 }
+
+
 
 void update_jump()
 {
-    bool on_ground = collision(&golem);
     if (jump)
     {
         golem.y += jump_speed;
@@ -215,14 +225,8 @@ void update_jump()
         }
         //
         jump_speed -= gravity;
-        if (collision(&golem))
-        {
-            golem.y = tile_y + tile_height;
-            jump = 0;
-            jump_speed = 0;
-            activity(1);
-        }
-        else if (golem.y <= ground)
+        
+        if (golem.y <= ground)
         {
             golem.y = ground;
             jump = 0;
@@ -232,16 +236,11 @@ void update_jump()
     }
     else
     {
-        if (!collision(&golem) && golem.y > ground)
+        if (collision_idx() == -1 && golem.y > ground)
         {
             jump = 1;
             jump_speed = 0;
-            on_ground = false;
             activity(1);
-        }
-        else if (golem.y == ground || collision(&golem))
-        {
-            on_ground = true;
         }
     }
 }
@@ -353,7 +352,9 @@ void iDraw()
         // new code
         for (int i = 0; i < tile_idx; i++)
         {
-            iShowSprite(&tiles[i]);
+            if( tile_type[i] !='_'){
+                iShowSprite(&tiles[i]);
+            }
         }
         //
     }
@@ -556,18 +557,12 @@ void iAnim()
         iAnimateSprite(&golem);
         return;
     }
-    bool touch = collision(&golem);
-    if (direction == -1)
+    int idx= collision_idx();
+    if (direction == -1 )
     {
         golem.x -= 3;
         speed = 0;
         activity(1);
-        // new code
-        if (touch)
-        {
-            golem.x += 3;
-        }
-        //
     }
     else if (direction == 1)
     {
@@ -579,27 +574,16 @@ void iAnim()
         {
             golem.x += 3;
         }
-        // new code
-        if (touch)
-        {
-            golem.x -= 3;
-            //
-            activity(1);
-        }
-        else
-        {
-            activity(1);
-        }
     }
     iAnimateSprite(&golem);
 }
 void animate_tile()
-{
-    if (direction == 1 && golem.x > 350 && !collision(&golem))
+{   
+    if (direction == 1 && golem.x > 350 )
     {
         for (int i = 0; i < tile_idx; i++)
         {
-            tiles[i].x -= 5;
+            tiles[i].x -= 2;
         }
     }
 }
@@ -613,7 +597,7 @@ int main(int argc, char *argv[])
 
     load_bg();
     iSetTimer(100, iAnim);
-    iSetTimer(60, animate_tile);
+    iSetTimer(20, animate_tile);
     iSetTimer(20, update_jump);
     iInitialize(800, 500, "Super Mario");
     printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
