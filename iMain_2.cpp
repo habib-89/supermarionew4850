@@ -69,11 +69,6 @@ void load_bg()
     iLoadImage(&bg[2], "Game Project Pic/Level2BG.jpg");
     iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
 
-    // Resize all to fit screen
-    for (int i = 1; i <= 3; i++)
-    {
-        iResizeImage(&bg[i], 800, 500);
-    }
 }
 
 void loadLevelFromFile(int level)
@@ -98,11 +93,6 @@ void loadLevelFromFile(int level)
 
     fclose(fp);
 
-    // for(int i =0; i<MAP_HEIGHT ; i++){
-    //     for(int j =0 ; j<MAP_WIDTH ; j++){
-    //         printf( "%c", tileMap[i][j]);
-    //     }
-    // }
 
     iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
     iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
@@ -283,6 +273,19 @@ void iSpecialKeyboard(unsigned char key)
             direction = 0;
             speed = 0;
         }
+    }
+      
+    switch (key)
+    {
+    case GLUT_KEY_UP:
+        iIncreaseVolume(bgSoundIdx, 5);
+        break;
+    case GLUT_KEY_DOWN:
+        iDecreaseVolume(bgSoundIdx, 5);
+        break;
+    // place your codes for other keys here
+    default:
+        break;
     }
 }
 void iDraw()
@@ -535,7 +538,24 @@ void iKeyboard(unsigned char key)
             gameState = MENU;
         }
     }
+    
+	switch (key)
+	{
+	case 'r':
+		iResumeSound(bgSoundIdx);
+		break;
+	case 'p':
+		iPauseSound(bgSoundIdx);
+		break;
+	case 'x':
+		iStopSound(bgSoundIdx);
+		break;
+		// place your codes for other keys here
+	default:
+		break;
+	}
 }
+
 
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
@@ -596,11 +616,12 @@ int main(int argc, char *argv[])
     iSetTimer(100, iAnim);
     iSetTimer(20, animate_tile);
     iSetTimer(20, update_jump);
+    
+    iInitializeSound();
+    bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
     iInitialize(800, 500, "Super Mario");
     printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
-    iInitializeSound();
-    bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
     return 0;
 }
 

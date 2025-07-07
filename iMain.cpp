@@ -1,11 +1,7 @@
 #include "iGraphics.h"
 #include <iostream>
 #include "iSound.h"
-<<<<<<< HEAD
-#include<windows.h>
-=======
 #include <windows.h>
->>>>>>> ceb906be278e06804ffb44cb07588b6c4ed84f12
 using namespace std;
 
 int pic_x=320, pic_y=90;
@@ -30,6 +26,8 @@ bool isPaused = false;
 #define LEVEL_SELECT  4      // <-- new
 #define GAME_WIN 5
 #define LEVEL_COMPLETE 10
+#define PAUSE_MENU 20
+
 
 
 
@@ -67,8 +65,8 @@ static int keyHoldCounter = 0;
 
 int cameraX = 0; // Scroll offset in pixels
 
-int coinCount = 0;   // To store the number of coins collected
-int score = 0;       // To store the score based on coins collected
+int coinCount = 0;  
+int score = 0;       
 
 bool reachedWinFlag = false;
 #define WIN_FLAG_TILE 99
@@ -79,7 +77,7 @@ bool reachedWinFlag = false;
 void loadLevelFromFile(int level)
 {
     char filename[100];
-    sprintf(filename, "assets/Level/level%d.txt", level);  // or just "level1.txt" if in main folder
+    sprintf(filename, "assets/Level/level%d.txt", level);  
 
     FILE* fp = fopen(filename, "r");
     if (fp == NULL)
@@ -233,6 +231,13 @@ void iDraw()
         iText(70, 30, "Press P to pause and resume.", GLUT_BITMAP_TIMES_ROMAN_24);
         iText(70, 10, "Press M to go to Menu.", GLUT_BITMAP_TIMES_ROMAN_24);
 
+        // Draw pause button (top-right corner)
+iSetColor(100, 100, 100);
+iFilledRectangle(740, 450, 50, 30);
+iSetColor(255, 255, 255);
+iText(750, 460, "Pause", GLUT_BITMAP_HELVETICA_12);
+
+
         if (gameOver)
         {
             iSetColor(255, 0, 0);
@@ -303,7 +308,7 @@ void iDraw()
                 }
                 else if (tile == WIN_FLAG_TILE) // Win flag tile
                 {
-                    iShowImage(drawX, drawY, "assets/Level1image/Wooden_Barrel.png");
+                    iShowImage(drawX, drawY, "assets/GameBG/Win Flag002.png");
 
                     // Check collision with Mario
                     if (pic_x + 30 > drawX && pic_x < drawX + 30 &&
@@ -334,6 +339,12 @@ void iDraw()
         iText(230, 180, "Press 'M' to return to Main Menu.", GLUT_BITMAP_HELVETICA_18);
         iText(230, 150, "Press 'E' to exit.", GLUT_BITMAP_HELVETICA_18);
     }
+    else if (gameState == PAUSE_MENU)
+{
+    iClear();
+   iShowImage(0,0,"assets/GameBG/Pause001.png");
+}
+
     else if (gameState == LEVEL_COMPLETE)
 {
     iClear();
@@ -600,6 +611,53 @@ void iMouse(int button, int state, int mx, int my)
         gameState = MENU;
     }
 }
+else if (gameState == GAME)
+{
+    // If pause button clicked
+    if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
+    {
+        gameState = PAUSE_MENU;
+        isPaused = true;
+    }
+}
+else if (gameState == PAUSE_MENU)
+{
+    // Resume
+    if (mx >= 300 && mx <= 500 && my >= 320 && my <= 360)
+    {
+        gameState = GAME;
+        isPaused = false;
+    }
+    // New Game
+    else if (mx >= 300 && mx <= 500 && my >= 260 && my <= 300)
+    {
+        // Reset everything for new game
+        currentLevel = 1;
+        loadLevelFromFile(currentLevel);
+        pic_x = 320;
+        pic_y = 90;
+        cameraX = 0;
+        coinCount = 0;
+        score = 0;
+        gameOver = false;
+        gameStartTime = time(NULL);
+        gameState = GAME;
+        isPaused = false;
+    }
+    // Settings (optional)
+    else if (mx >= 300 && mx <= 500 && my >= 200 && my <= 240)
+    {
+        // Just a placeholder for now
+        printf("Settings clicked\n");
+    }
+    // Main Menu
+    else if (mx >= 300 && mx <= 500 && my >= 140 && my <= 180)
+    {
+        gameState = MENU;
+        isPaused = false;
+    }
+}
+
 
 
         // For debug (optional)
@@ -682,7 +740,7 @@ void iKeyboard(unsigned char key)
             saveGameState();
             gameState = MENU;
         }
-
+  
 
     }
     else if (gameState == GAME_WIN)
@@ -733,25 +791,7 @@ GLUT_KEY_PAGE_UP, GLUT_KEY_PAGE_DOWN, GLUT_KEY_HOME, GLUT_KEY_END,
 GLUT_KEY_INSERT */
 void iSpecialKeyboard(unsigned char key)
 {
-    /*
-    if (key == GLUT_KEY_RIGHT)
-    {
-        if (pic_x < 400) // character moves normally until middle
-            pic_x += moveSpeed;
-        //  else if (bgX > -800) // then scroll background
-        //     bgX -= bgScrollSpeed;
-        else if (pic_x + 50 < 800) // if background fully scrolled, move character
-            pic_x += moveSpeed;
-    }
-
-    if (key == GLUT_KEY_LEFT)
-    {
-        if (pic_x > 100)
-            pic_x -= moveSpeed;
-        //   else if (bgX < 0)
-        //   bgX += bgScrollSpeed;
-    }
-        */
+    
     switch (key)
     {
     case GLUT_KEY_UP:
