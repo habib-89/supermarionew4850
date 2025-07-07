@@ -182,13 +182,6 @@ void iDraw()
     {
 
         iShowImage(0, 0,"assets/GameBG/2nd cover003.png");
-
-        iSetColor(0, 0, 0);
-        iText(10, 10, "Press e to Exit or Click Exit button.", GLUT_BITMAP_HELVETICA_18);
-        iSetColor(0, 0, 0);
-        iText(10, 40, "Press New game to start the game.", GLUT_BITMAP_HELVETICA_18);
-
-
         return;
 
     }
@@ -342,7 +335,7 @@ iText(750, 460, "Pause", GLUT_BITMAP_HELVETICA_12);
     else if (gameState == PAUSE_MENU)
 {
     iClear();
-   iShowImage(0,0,"assets/GameBG/Pause001.png");
+   iShowImage(0,0,"assets/GameBG/Pause002.png");
 }
 
     else if (gameState == LEVEL_COMPLETE)
@@ -623,13 +616,13 @@ else if (gameState == GAME)
 else if (gameState == PAUSE_MENU)
 {
     // Resume
-    if (mx >= 300 && mx <= 500 && my >= 320 && my <= 360)
+    if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
     {
         gameState = GAME;
         isPaused = false;
     }
     // New Game
-    else if (mx >= 300 && mx <= 500 && my >= 260 && my <= 300)
+    else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
     {
         // Reset everything for new game
         currentLevel = 1;
@@ -645,13 +638,13 @@ else if (gameState == PAUSE_MENU)
         isPaused = false;
     }
     // Settings (optional)
-    else if (mx >= 300 && mx <= 500 && my >= 200 && my <= 240)
+    else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
     {
         // Just a placeholder for now
         printf("Settings clicked\n");
     }
     // Main Menu
-    else if (mx >= 300 && mx <= 500 && my >= 140 && my <= 180)
+    else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
     {
         gameState = MENU;
         isPaused = false;
@@ -860,14 +853,11 @@ int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
    
-    // place your own initialization codes here.
+   
     populate_run_images();
     loadResources();
     iSetTimer(100, update_run);
     iSetTimer(20, iUpdate); // Call iUpdate every 20 ms
-
-    // frontPageImage = iLoadImage("c:/Users/user/OneDrive/Desktop/Game Project Pic/1st Cover003.bmp");
-    //iLoadImage(&frontPageImage, "c:/Users/user/OneDrive/Desktop/Game Project Pic/1st Cover003.bmp");
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
     iInitialize(800, 500, "Super Mario");
