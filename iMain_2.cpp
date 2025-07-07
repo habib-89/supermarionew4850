@@ -3,9 +3,6 @@
 #include "iSound.h"
 using namespace std;
 
-/*
-function iDraw() is called again and again by the system.
-*/
 #define MENU 0
 #define GAME 1
 #define GAME_OVER 2
