@@ -11,10 +11,10 @@ using namespace std;
 #define LEVEL_SELECT 4
 #define MAP_WIDTH 68
 #define MAP_HEIGHT 17
+#define GROUND 122
 
 int golem_height = 76;
 int golem_width = 45;
-
 
 int pic_x, pic_y;
 int golem_idx = 0;
@@ -25,7 +25,7 @@ int jump = 0;
 int jump_speed = 0;
 int gravity = 1;
 int jump_height = 15;
-int ground = 122;
+int ground = GROUND;
 int direction = 0;
 int tile_x = 0, tile_y = ground;
 int tile_width = 30, tile_height = 30;
@@ -42,6 +42,8 @@ int animation = -1; // 0 idle, 1 run, 2 jump
 bool going_right = true;
 bool gameOver = false;
 bool isPaused = false;
+bool touch = false;
+;
 int bgSoundIdx = -1;
 char tileMap[MAP_HEIGHT][MAP_WIDTH];
 char tile_type[MAP_HEIGHT * MAP_WIDTH];
@@ -98,12 +100,6 @@ void loadLevelFromFile(int level)
 
     fclose(fp);
 
-    // for(int i =0; i<MAP_HEIGHT ; i++){
-    //     for(int j =0 ; j<MAP_WIDTH ; j++){
-    //         printf( "%c", tileMap[i][j]);
-    //     }
-    // }
-
     iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
     iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
 
@@ -136,11 +132,9 @@ void loadLevelFromFile(int level)
             }
             else if (tileMap[y][x] == '_')
                 tile_x += tile_width;
-            printf("%d %d ", tile_x, tile_y);
         }
     }
 }
-
 
 void loadResources()
 {
@@ -187,42 +181,58 @@ void activity(int current_state)
         if (current_state == 1)
             iChangeSpriteFrames(&golem, golem_run_frames, 7);
         if (current_state == 2)
-            iChangeSpriteFrames(&golem, golem_jump_frames, 11);
+            iChangeSpriteFrames(&golem, golem_jump_frames, 10);
     }
 }
 
-int collision_idx()
+int collision_idx(Sprite *s)
 {
+    // tiles[i].x>0 && tiles[i].x<800
     for (int i = 0; i < tile_idx; i++)
     {
-        if(golem.y >ground && iCheckCollision(&golem,&tiles[i])){
+        // golem.y>= ground &&
+        if (iCheckCollision(s, &tiles[i]))
+        {
             return i;
         }
     }
     return -1;
 }
 
-
-
 void update_jump()
 {
+    Sprite test = golem;
+    int idx;
+
     if (jump)
     {
         golem.y += jump_speed;
-        // new code
-        if (direction == 1 && golem.x != 350)
+
+        if (direction == 1 && golem.x < 350)
         {
-            golem.x += 3;
-            activity(1);
+            test.x += 3;
+            if (collision_idx(&test) == -1)
+            {
+                golem.x += 3;
+            }
+            activity(2);
         }
-        else if (direction == -1 && golem.x != 350)
+        else if (direction == 1 && golem.x >= 350)
         {
-            golem.x -= 3;
-            activity(1);
+            speed = -3;
         }
-        //
+        else if (direction == -1)
+        {
+            test.x -= 3;
+            if (collision_idx(&test) == -1)
+            {
+                golem.x -= 3;
+            }
+            activity(2);
+        }
+
         jump_speed -= gravity;
-        
+
         if (golem.y <= ground)
         {
             golem.y = ground;
@@ -231,16 +241,8 @@ void update_jump()
             activity(1);
         }
     }
-    else
-    {
-        if (collision_idx() == -1 && golem.y > ground)
-        {
-            jump = 1;
-            jump_speed = 0;
-            activity(1);
-        }
-    }
 }
+
 
 void iSpecialKeyboard(unsigned char key)
 {
@@ -349,7 +351,8 @@ void iDraw()
         // new code
         for (int i = 0; i < tile_idx; i++)
         {
-            if( tile_type[i] !='_'){
+            if (tile_type[i] != '_')
+            {
                 iShowSprite(&tiles[i]);
             }
         }
@@ -549,38 +552,66 @@ GLUT_KEY_INSERT */
 
 void iAnim()
 {
+    int idx;
+
     if (jump)
     {
         iAnimateSprite(&golem);
         return;
     }
-    int idx= collision_idx();
-    if (direction == -1 )
+
+    // Predictive horizontal collision check
+    Sprite test = golem;
+
+    if (direction == -1) // left
     {
-        golem.x -= 3;
-        speed = 0;
+        test.x -= 3;
+        idx = collision_idx(&test);
+        if (idx == -1)
+        {
+            golem.x -= 3;
+            speed = 0;
+        }
         activity(1);
     }
-    else if (direction == 1)
+    else if (direction == 1) // right
     {
-        if (golem.x > 350)
+        test.x += 3;
+        idx = collision_idx(&test);
+        if (idx == -1)
         {
-            speed = -3;
+            if (golem.x > 350)
+            {
+                speed = -3; // background scroll
+            }
+            else
+            {
+                golem.x += 3;
+                speed = 0;
+            }
         }
         else
         {
-            golem.x += 3;
+            speed = 0;
         }
+        activity(1);
     }
+    else
+    {
+        speed = 0;
+        activity(0); // idle
+    }
+
     iAnimateSprite(&golem);
 }
+
 void animate_tile()
-{   
-    if (direction == 1 && golem.x > 350 )
+{
+    if (direction == 1 && golem.x >= 350)
     {
         for (int i = 0; i < tile_idx; i++)
         {
-            tiles[i].x -= 2;
+            tiles[i].x += speed;
         }
     }
 }
@@ -603,5 +634,3 @@ int main(int argc, char *argv[])
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
     return 0;
 }
-
-// 69, 37, 150
