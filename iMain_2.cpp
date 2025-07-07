@@ -12,6 +12,8 @@ using namespace std;
 #define MAP_WIDTH 68
 #define MAP_HEIGHT 17
 #define GROUND 122
+#define PAUSE_MENU 20
+
 
 int golem_height = 76;
 int golem_width = 45;
@@ -29,6 +31,7 @@ int ground = GROUND;
 int direction = 0;
 int tile_x = 0, tile_y = ground;
 int tile_width = 30, tile_height = 30;
+
 Image bg[4];
 Image golem_idle[2];
 Image golem_run_frames[7];
@@ -36,6 +39,7 @@ Image golem_jump_frames[11];
 Image tile_set[2];
 Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
+
 int speed = 0;
 int golem_running = 0;
 int animation = -1; // 0 idle, 1 run, 2 jump
@@ -43,7 +47,7 @@ bool going_right = true;
 bool gameOver = false;
 bool isPaused = false;
 bool touch = false;
-;
+
 int bgSoundIdx = -1;
 char tileMap[MAP_HEIGHT][MAP_WIDTH];
 char tile_type[MAP_HEIGHT * MAP_WIDTH];
@@ -95,11 +99,7 @@ void loadLevelFromFile(int level)
 
     fclose(fp);
 
-    // for(int i =0; i<MAP_HEIGHT ; i++){
-    //     for(int j =0 ; j<MAP_WIDTH ; j++){
-    //         printf( "%c", tileMap[i][j]);
-    //     }
-    // }
+
 
     iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
     iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
@@ -152,8 +152,7 @@ void saveGameState()
     prev_pic_x = pic_x;
     prev_pic_y = pic_y;
     prev_jump = jump;
-    // prev_jumpSpeed = jumpSpeed;
-    // prev_bgX = bgX;
+    prev_jumpSpeed = jump_speed;
     prev_gameOver = gameOver;
     prev_gameStartTime = gameStartTime;
     hasPreviousGame = true;
@@ -166,8 +165,7 @@ void loadGameState()
     pic_x = prev_pic_x;
     pic_y = prev_pic_y;
     jump = prev_jump;
-    // jumpSpeed = prev_jumpSpeed;
-    //  bgX = prev_bgX;
+    jump_speed = prev_jumpSpeed;
     gameOver = prev_gameOver;
     gameStartTime = prev_gameStartTime;
 }
@@ -287,7 +285,7 @@ void iSpecialKeyboard(unsigned char key)
             speed = 0;
         }
     }
-      
+
     switch (key)
     {
     case GLUT_KEY_UP:
@@ -352,17 +350,25 @@ void iDraw()
 
     else if (gameState == GAME)
     {
+        iClear();
         iShowLoadedImage(0, 0, &bg[currentLevel]);
         iWrapImage(&bg[1], speed);
         iShowSprite(&golem);
         iText(70, 30, "Press P to pause and resume.", GLUT_BITMAP_TIMES_ROMAN_24);
         iText(70, 10, "Press M to go to Menu.", GLUT_BITMAP_TIMES_ROMAN_24);
+
+        // Draw pause button (top-right corner)
+        iSetColor(100, 100, 100);
+        iFilledRectangle(740, 450, 50, 30);
+        iSetColor(255, 255, 255);
+        iText(750, 460, "Pause", GLUT_BITMAP_HELVETICA_12);
+
         if (gameOver)
         {
             iSetColor(255, 0, 0);
             iText(300, 250, "Game Over! Press R to Restart", GLUT_BITMAP_HELVETICA_18);
         }
-        // new code
+
         for (int i = 0; i < tile_idx; i++)
         {
             if (tile_type[i] != '_')
@@ -371,6 +377,11 @@ void iDraw()
             }
         }
         //
+    }
+    else if (gameState == PAUSE_MENU)
+    {
+        iClear();
+        iShowImage(0,0,"assets/GameBG/Pause002.png");
     }
 }
 
@@ -459,21 +470,81 @@ void iMouse(int button, int state, int mx, int my)
             {
                 currentLevel = 1;
                 loadLevelFromFile(currentLevel);
+                golem.x = 70;
+                golem.y = GROUND;
+                direction = 0;
+                speed = 0;
+                jump = 0;
+                jump_speed = 0;
+                animation = -1;
+                activity(0);
+
+                
+                scroll_x = 0;
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x - scroll_x, tiles[i].y);
+                }
+
+
+                gameOver = false;
+                gameStartTime = time(NULL);
                 gameState = GAME;
+                isPaused = false;
             }
             // Level-2 button
             else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
             {
                 currentLevel = 2;
                 loadLevelFromFile(currentLevel);
+                golem.x = 70;
+                golem.y = GROUND;
+                direction = 0;
+                speed = 0;
+                jump = 0;
+                jump_speed = 0;
+                animation = -1;
+                activity(0);
+
+                // Reset camera
+                scroll_x = 0;
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x - scroll_x, tiles[i].y);
+                }
+
+
+                gameOver = false;
+                gameStartTime = time(NULL);
                 gameState = GAME;
+                isPaused = false;
             }
             // Level-3 button
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
                 currentLevel = 3;
                 loadLevelFromFile(currentLevel);
+                golem.x = 70;
+                golem.y = GROUND;
+                direction = 0;
+                speed = 0;
+                jump = 0;
+                jump_speed = 0;
+                animation = -1;
+                activity(0);
+
+                // Reset camera
+                scroll_x = 0;
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x - scroll_x, tiles[i].y);
+                }
+
+
+                gameOver = false;
+                gameStartTime = time(NULL);
                 gameState = GAME;
+                isPaused = false;
             }
         }
         else if (gameState == HELP)
@@ -482,6 +553,66 @@ void iMouse(int button, int state, int mx, int my)
             if (mx >= 230 && mx <= 330 && my >= 20 && my <= 55)
             {
                 gameState = MENU;
+            }
+        }
+        else if (gameState == GAME)
+        {
+            // If pause button clicked
+            if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
+            {
+                gameState = PAUSE_MENU;
+                isPaused = true;
+            }
+        }
+        else if (gameState == PAUSE_MENU)
+        {
+            // Resume
+            if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
+            {
+                gameState = GAME;
+                isPaused = false;
+            }
+            // New Game
+            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
+            {
+                // Reset everything for new game
+                currentLevel = 1;
+                loadLevelFromFile(currentLevel);
+
+
+                golem.x = 70;
+                golem.y = GROUND;
+                direction = 0;
+                speed = 0;
+                jump = 0;
+                jump_speed = 0;
+                animation = -1;
+                activity(0);
+
+                // Reset camera
+                scroll_x = 0;
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x - scroll_x, tiles[i].y);
+                }
+
+
+                gameOver = false;
+                gameStartTime = time(NULL);
+                gameState = GAME;
+                isPaused = false;
+            }
+            // Settings (optional)
+            else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
+            {
+                // Just a placeholder for now
+                printf("Settings clicked\n");
+            }
+            // Main Menu
+            else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
+            {
+                gameState = MENU;
+                isPaused = false;
             }
         }
 
@@ -552,22 +683,22 @@ void iKeyboard(unsigned char key)
             gameState = MENU;
         }
     }
-    
-	switch (key)
-	{
-	case 'r':
-		iResumeSound(bgSoundIdx);
-		break;
-	case 'p':
-		iPauseSound(bgSoundIdx);
-		break;
-	case 'x':
-		iStopSound(bgSoundIdx);
-		break;
-		// place your codes for other keys here
-	default:
-		break;
-	}
+
+    switch (key)
+    {
+    case 'r':
+        iResumeSound(bgSoundIdx);
+        break;
+    case 'p':
+        iPauseSound(bgSoundIdx);
+        break;
+    case 'x':
+        iStopSound(bgSoundIdx);
+        break;
+    // place your codes for other keys here
+    default:
+        break;
+    }
 }
 
 
@@ -658,7 +789,7 @@ int main(int argc, char *argv[])
     iSetTimer(100, iAnim);
     iSetTimer(20, animate_tile);
     iSetTimer(20, update_jump);
-    
+
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
     iInitialize(800, 500, "Super Mario");

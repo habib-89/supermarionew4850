@@ -7,7 +7,7 @@ using namespace std;
 int pic_x=320, pic_y=90;
 int idle_idx = 0;
 char run_idle[18][100];
-// int groundY = 100;           // Ground level
+
 int jump = 0;                   // Jump flag
 int jumpSpeed = 0;              // Current vertical speed
 int gravity = 1;                // Gravity strength
@@ -48,7 +48,6 @@ int bgSoundIdx = -1;
 bool hasPreviousGame = false;
 int prev_pic_x, prev_pic_y;
 int prev_jump, prev_jumpSpeed;
-// int prev_bgX;
 bool prev_gameOver;
 int prev_gameStartTime;
 
@@ -144,7 +143,8 @@ void saveGameState()
 }
 void loadGameState()
 {
-    if (!hasPreviousGame) return;
+    if (!hasPreviousGame)
+     return;
 
     pic_x = prev_pic_x;
     pic_y = prev_pic_y;
@@ -224,7 +224,7 @@ void iDraw()
         iText(70, 30, "Press P to pause and resume.", GLUT_BITMAP_TIMES_ROMAN_24);
         iText(70, 10, "Press M to go to Menu.", GLUT_BITMAP_TIMES_ROMAN_24);
 
-        // Draw pause button (top-right corner)
+     
 iSetColor(100, 100, 100);
 iFilledRectangle(740, 450, 50, 30);
 iSetColor(255, 255, 255);
@@ -553,21 +553,48 @@ void iMouse(int button, int state, int mx, int my)
             if (mx >= 58 && mx <= 369 && my >= 194 && my <= 244)
             {
                 currentLevel = 1;
-                loadLevelFromFile(currentLevel);  // <-- ADD HERE
-                gameState = GAME;
+                loadLevelFromFile(currentLevel);  
+                 pic_x = 320;
+        pic_y = 90;
+        cameraX = 0;
+        score = 0;
+        coinCount = 0;
+        gameOver = false;
+        reachedWinFlag = false;
+        isPaused = false;
+        gameStartTime = time(NULL);
+                gameState = GAME; 
             }
             // Level-2 button
             else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
             {
                 currentLevel = 2;
-                loadLevelFromFile(currentLevel);  // <-- ADD HERE
+                loadLevelFromFile(currentLevel); 
+                 pic_x = 320;
+        pic_y = 90;
+        cameraX = 0;
+        score = 0;
+        coinCount = 0;
+        gameOver = false;
+        reachedWinFlag = false;
+        isPaused = false;
+        gameStartTime = time(NULL); 
                 gameState = GAME;
             }
             // Level-3 button
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
                 currentLevel = 3;
-                loadLevelFromFile(currentLevel);  // <-- ADD HERE
+                loadLevelFromFile(currentLevel); 
+                 pic_x = 320;
+        pic_y = 90;
+        cameraX = 0;
+        score = 0;
+        coinCount = 0;
+        gameOver = false;
+        reachedWinFlag = false;
+        isPaused = false;
+        gameStartTime = time(NULL); 
                 gameState = GAME;
             }
         }
