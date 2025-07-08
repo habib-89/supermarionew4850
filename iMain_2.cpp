@@ -9,7 +9,7 @@ using namespace std;
 #define FRONT_PAGE -1
 #define HELP 3
 #define LEVEL_SELECT 4
-#define MAP_WIDTH 68
+#define MAP_WIDTH 101
 #define MAP_HEIGHT 17
 #define GROUND 122
 #define PAUSE_MENU 20
@@ -115,7 +115,7 @@ void loadLevelFromFile(int level)
         {
             if (tileMap[y][x] == '*')
             {
-                iInitSprite(&tiles[tile_idx], -1);
+                iInitSprite(&tiles[tile_idx]);
                 iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
                 iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
                 tile_x += tile_width;
@@ -124,7 +124,7 @@ void loadLevelFromFile(int level)
             }
             else if (tileMap[y][x] == 'o')
             {
-                iInitSprite(&tiles[tile_idx], -1);
+                iInitSprite(&tiles[tile_idx]);
                 iChangeSpriteFrames(&tiles[tile_idx], &tile_set[1], 1);
                 iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
                 tile_x += tile_width;
@@ -142,7 +142,7 @@ void loadResources()
     iLoadFramesFromFolder(golem_idle, "Game Project Pic/walk");
     iLoadFramesFromFolder(golem_run_frames, "Game Project Pic/run");
     iLoadFramesFromFolder(golem_jump_frames, "Game Project Pic/jump");
-    iInitSprite(&golem, -1);
+    iInitSprite(&golem);
     iChangeSpriteFrames(&golem, golem_idle, 1);
     iSetSpritePosition(&golem, 70, 122);
 }
@@ -205,15 +205,40 @@ void update_jump()
 
     if (jump)
     {
-        golem.y += jump_speed;
+        
+        test.y = golem.y + jump_speed;
 
+        
+        idx = collision_idx(&test);
+
+        if (idx != -1)
+        {
+        
+            if (jump_speed < 0)
+            {
+                
+                golem.y = tiles[idx].y + tile_height;
+                jump = 0;
+                jump_speed = 0;
+                activity(1); 
+            }
+            else
+            {
+                
+                jump_speed = -1; 
+            }
+        }
+        else
+        {
+           
+            golem.y += jump_speed;
+            jump_speed -= gravity;
+        }
+
+       
         if (direction == 1 && golem.x < 350)
         {
-            test.x += 3;
-            if (collision_idx(&test) == -1)
-            {
-                golem.x += 3;
-            }
+            golem.x += 3;
             activity(2);
         }
         else if (direction == 1 && golem.x >= 350)
@@ -222,28 +247,26 @@ void update_jump()
         }
         else if (direction == -1)
         {
-            test.x -= 3;
-            if (collision_idx(&test) == -1)
-            {
-                golem.x -= 3;
-            }
+            golem.x -= 3;
             activity(2);
         }
-
-        jump_speed -= gravity;
-
-        if (golem.y <= ground)
+    }
+    else
+    {
+        // When not jumping, ensure grounded
+        test.y = golem.y - 1;
+        idx = collision_idx(&test);
+        if (idx == -1)
         {
-            golem.y = ground;
-            jump = 0;
-            jump_speed = 0;
-            activity(1);
+            // No ground underfoot, fall
+            jump = 1;
+            jump_speed = -1;
         }
     }
 }
 
 
-void iSpecialKeyboard(unsigned char key)
+void iSpecialKeyboard(unsigned char key, int state)
 {
     if (gameState == GAME)
     {
@@ -314,10 +337,7 @@ void iDraw()
     {
         iShowImage(0, 0, "Game Project Pic/2nd cover003.png");
 
-        iSetColor(0, 0, 0);
-        iText(10, 10, "Press e to Exit or Click Exit button.", GLUT_BITMAP_HELVETICA_18);
-        iSetColor(0, 0, 0);
-        iText(10, 40, "Press New game to start the game.", GLUT_BITMAP_HELVETICA_18);
+      
     }
 
     else if (gameState == HELP)
@@ -354,8 +374,8 @@ void iDraw()
         iShowLoadedImage(0, 0, &bg[currentLevel]);
         iWrapImage(&bg[1], speed);
         iShowSprite(&golem);
-        iText(70, 30, "Press P to pause and resume.", GLUT_BITMAP_TIMES_ROMAN_24);
-        iText(70, 10, "Press M to go to Menu.", GLUT_BITMAP_TIMES_ROMAN_24);
+     //   iText(70, 30, "Press P to pause and resume.", GLUT_BITMAP_TIMES_ROMAN_24);
+       // iText(70, 10, "Press M to go to Menu.", GLUT_BITMAP_TIMES_ROMAN_24);
 
         // Draw pause button (top-right corner)
         iSetColor(100, 100, 100);
@@ -623,7 +643,7 @@ void iMouse(int button, int state, int mx, int my)
 
 /*
 function iMouseWheel() is called when the user scrolls the mouse wheel.
-dir = 1 for up, -1 for down.
+dir = 1 for up for down.
 */
 void iMouseWheel(int dir, int mx, int my)
 {
@@ -634,7 +654,7 @@ void iMouseWheel(int dir, int mx, int my)
 function iKeyboard() is called whenever the user hits a key in keyboard.
 key- holds the ASCII value of the key pressed.
 */
-void iKeyboard(unsigned char key)
+void iKeyboard(unsigned char key, int state)
 {
     if (gameState == FRONT_PAGE)
     {
@@ -727,7 +747,6 @@ void iAnim()
 
     if (direction == -1) // left
     {
-        test.x -= 3;
         idx = collision_idx(&test);
         if (idx == -1)
         {
@@ -738,7 +757,7 @@ void iAnim()
     }
     else if (direction == 1) // right
     {
-        test.x += 3;
+        // test.x += 3;
         idx = collision_idx(&test);
         if (idx == -1)
         {
@@ -792,7 +811,7 @@ int main(int argc, char *argv[])
 
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
-    iInitialize(800, 500, "Super Mario");
+    iOpenWindow(800, 500, "Super Mario");
     printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
     return 0;

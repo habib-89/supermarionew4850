@@ -14,7 +14,6 @@ void iDraw()
 	// place your drawing codes here
 	//  load background.jpg using stb_image
 	iClear();
-	
 	iShowLoadedImage(0, 0, &bg);
 	iWrapImage(&bg, speed);
 	iText(70, 50, "Press LEFT to decrease speed, RIGHT to increase speed", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -61,7 +60,7 @@ void iMouse(int button, int state, int mx, int my)
 	function iKeyboard() is called whenever the user hits a key in keyboard.
 	key- holds the ASCII value of the key pressed.
 */
-void iKeyboard(unsigned char key)
+void iKeyboard(unsigned char key, int state)
 {
 
 	// place your codes for other keys here
@@ -76,7 +75,7 @@ void iKeyboard(unsigned char key)
 	GLUT_KEY_LEFT, GLUT_KEY_UP, GLUT_KEY_RIGHT, GLUT_KEY_DOWN, GLUT_KEY_PAGE UP,
 	GLUT_KEY_PAGE DOWN, GLUT_KEY_HOME, GLUT_KEY_END, GLUT_KEY_INSERT
 */
-void iSpecialKeyboard(unsigned char key)
+void iSpecialKeyboard(unsigned char key, int state)
 {
 
 	if (key == GLUT_KEY_END)
@@ -100,6 +99,6 @@ int main(int argc, char *argv[])
 {
 	glutInit(&argc, argv);
 	loadResources();
-	iInitialize(900, 450, "ImageDemp");
+	iOpenWindow(900, 450, "ImageDemp");
 	return 0;
 }

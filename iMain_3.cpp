@@ -355,7 +355,7 @@ void iAnim()
             golem.x += 3;
         }
         // new code
-        if (touch != -1)
+        if (touch!= -1)
         {
             golem.x -= 3;
             //
