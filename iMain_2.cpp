@@ -198,6 +198,7 @@ int collision_idx(Sprite *s)
     return -1;
 }
 
+
 void update_jump()
 {
     Sprite test = golem;
@@ -815,4 +816,4 @@ int main(int argc, char *argv[])
     printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
     return 0;
-}
+}  
