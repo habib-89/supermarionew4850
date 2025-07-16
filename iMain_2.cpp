@@ -71,6 +71,11 @@ const int maxLevel = 3;
 
 int score = 0;
 
+Sprite flag;
+int lastBrickX = 0;
+bool levelComplete = false;
+
+
 
 void load_bg()
 {
@@ -105,6 +110,12 @@ for (int i = 0; i < MAP_HEIGHT; i++)
         j++;
     }
 }
+Image flagImg;
+iLoadImage(&flagImg, "assets/GameBG/Win Flag002.png"); // put flag image in that folder
+iInitSprite(&flag);
+iChangeSpriteFrames(&flag, &flagImg, 1);
+iSetSpritePosition(&flag, lastBrickX + 100, GROUND); // Place flag just after last brick
+
 
 
     fclose(fp);
@@ -123,15 +134,29 @@ for (int i = 0; i < MAP_HEIGHT; i++)
         tile_x = 0;
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-            if (tileMap[y][x] == '*')
-            {
-                iInitSprite(&tiles[tile_idx]);
-                iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
-                iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
-                tile_x += tile_width;
-                tile_type[tile_idx] = '*';
-                tile_idx++;
-            }
+           if (tileMap[y][x] == '*')
+{
+    iInitSprite(&tiles[tile_idx]);
+    iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
+    iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+
+    iInitSprite(&tiles[tile_idx]);
+iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
+iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+
+tile_type[tile_idx] = '*';
+tile_idx++;
+
+if (tile_x > lastBrickX)  // Move after placing tile
+    lastBrickX = tile_x;
+
+tile_x += tile_width; // You must increment after placement
+
+
+    tile_type[tile_idx] = '*';
+    tile_idx++;
+}
+
             else if (tileMap[y][x] == 'o')
             {
                 iInitSprite(&tiles[tile_idx]);
@@ -291,6 +316,17 @@ for (int i = 0; i < tile_idx; i++)
         }
     }
 }
+
+// Check flag collision
+if (!levelComplete && iCheckCollision(&golem, &flag))
+{
+    levelComplete = true;
+    printf("Level Complete!\n");
+
+    // Optional: go to menu or next level
+    gameState = LEVEL_SELECT;
+}
+
     
    
 
@@ -814,6 +850,13 @@ void iAnim()
         idx = collision_idx(&test);
         if (idx == -1)
         {
+            // Prevent golem from going beyond last brick + flag
+if (golem.x + scroll_x >= lastBrickX + tile_width + 50)
+{
+    direction = 0;
+    return;
+}
+
             if (golem.x > 350)
             {
                 speed = -golemSpeed; // background scroll
@@ -857,6 +900,14 @@ void animate_tile()
 {
     if (direction == 1 && golem.x >= 350)
     {
+        // Stop scrolling when last brick is visible on screen
+      if (lastBrickX + tile_width - scroll_x <= 800)
+
+        {
+            speed = 0;
+            return;
+        }
+
         scroll_x += golemSpeed;
 
         for (int i = 0; i < tile_idx; i++)
@@ -864,9 +915,12 @@ void animate_tile()
             tiles[i].x -= golemSpeed;
         }
 
+        flag.x -= golemSpeed; // move flag along with tiles
+
         bgScrollX += golemSpeed / 4;
     }
 }
+
 
 int main(int argc, char *argv[])
 {
