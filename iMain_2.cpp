@@ -301,7 +301,8 @@ int collision_idx(Sprite *s)
 
 void update_jump()
 {
-    if (gameState != GAME ) return;
+    if (gameState != GAME)
+        return;
     Sprite test = golem;
     int idx;
 
@@ -612,9 +613,7 @@ void iDraw()
     else if (gameState == LEVEL_COMPLETE)
     {
         iClear();
-         iShowImage(0, 0, "assets/GameBG/Level Complete001.png");
-
-        
+        iShowImage(0, 0, "assets/GameBG/Level Complete001.png");
     }
 }
 void resetTilePositionsForNewGame()
@@ -665,7 +664,7 @@ void iMouse(int button, int state, int mx, int my)
             // New Game
             if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
             {
-                gameState = LEVEL_SELECT; 
+                gameState = LEVEL_SELECT;
             }
             // Help
             else if (mx >= 208 && mx <= 596 && my >= 114 && my <= 165)
@@ -756,6 +755,8 @@ void iMouse(int button, int state, int mx, int my)
                     startLevel(currentLevel);
                 }
             }
+
+            // Main Menu
             else if (mx >= 418 && mx <= 608 && my >= 68 && my <= 138)
             {
                 gameState = MENU;
@@ -779,9 +780,11 @@ void iMouse(int button, int state, int mx, int my)
         }
 
 
+
         
 
-        // Debug mouse position
+        // Debug mouse positio
+        // For debug (optional)
         printf(" %d %d\n", mx, my);
     }
 }
@@ -887,8 +890,9 @@ GLUT_KEY_INSERT */
 
 void iAnim()
 {
-    
-    if (gameState != GAME ) return;
+
+    if (gameState != GAME)
+        return;
     int idx;
 
     if (dead)
@@ -972,8 +976,9 @@ void iAnim()
 
 void animate_tile()
 {
-    
-    if (gameState != GAME ) return;
+
+    if (gameState != GAME)
+        return;
     if (direction == 1 && golem.x >= 350)
     {
         // Stop scrolling when last brick is visible on screen
