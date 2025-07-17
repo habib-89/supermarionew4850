@@ -15,6 +15,8 @@ using namespace std;
 #define GROUND 122
 #define PAUSE_MENU 20
 #define LEVEL_COMPLETE 5
+#define GAME_OVER_SCREEN 6
+
 
 
 int golem_height = 76;
@@ -75,6 +77,14 @@ Sprite flag;
 int lastBrickX = 0;
 bool levelComplete = false;
 
+Image heart_full, heart_empty;
+int life = 3; // Start with 3 lives
+bool hurt = false;
+int hurtTimer = 0;
+
+// int gameOverSoundIdx;
+
+
 void loadLevelFromFile(int level);  
 void activity(int index);           
 
@@ -87,6 +97,7 @@ void load_bg()
 }
 void startLevel(int level) {
     score = 0; // ✅ reset score here
+    life = 3;
 
     tile_idx = 0;
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
@@ -220,6 +231,9 @@ void loadResources()
     iInitSprite(&golem);
     iChangeSpriteFrames(&golem, golem_idle, 1);
     iSetSpritePosition(&golem, 70, 122);
+    iLoadImage(&heart_full, "assets/Heart/HeartRed.png");   // Use your red heart image
+iLoadImage(&heart_empty, "assets/Heart/HeartBlack.png"); // Use your black heart image
+
 }
 
 void saveGameState()
@@ -354,13 +368,22 @@ void update_jump()
     // spike
     for (int i = 0; i < tile_idx; i++)
     {
-        if (tile_type[i] == 'x') 
+       if (tile_type[i] == 'x') 
+{
+    if (iCheckCollision(&golem, &tiles[i]) && !hurt)
+    {
+        life--;
+        hurt = true;
+        hurtTimer = 0;
+
+        if (life <= 0)
         {
-            if (iCheckCollision(&golem, &tiles[i]))
-            {
-                gameOver = true;
-            }
+            gameOver = true;
+            direction=0;
         }
+    }
+}
+
     }
 
     // Flag collision 
@@ -370,6 +393,24 @@ void update_jump()
         printf("Level Complete!\n");
         gameState = LEVEL_COMPLETE;
     }
+    if (hurt)
+{
+    hurtTimer++;
+    if (hurtTimer > 50) // About 1 second (adjust as needed)
+    {
+        hurt = false;
+        hurtTimer = 0;
+    }
+}
+if (life <= 0)
+{
+    gameOver = true;
+    direction = 0;
+    gameState = GAME_OVER_SCREEN; // <-- NEW!
+
+}
+
+
 }
 
 
@@ -509,6 +550,14 @@ void iDraw()
                 iShowSprite(&tiles[i]);
             }
         }
+        for (int i = 0; i < 3; i++)
+{
+    if (i < life)
+       iShowLoadedImage(20 + i * 35, 400, &heart_full);   // red heart
+    else
+        iShowLoadedImage(20 + i * 35, 400, &heart_empty); // black heart
+}
+
 
         // Show the flag sprite
         iShowSprite(&flag);
@@ -518,6 +567,27 @@ void iDraw()
         iClear();
         iShowImage(0, 0, "assets/GameBG/Pause002.png");
     }
+    else if (gameState == GAME_OVER_SCREEN)
+{
+    iSetColor(0, 0, 0);
+    iFilledRectangle(0, 0, 960, 540); // Full black background
+
+    iSetColor(255, 0, 0);
+    iText(300, 360, "GAME OVER", GLUT_BITMAP_TIMES_ROMAN_24);
+
+    // Retry Button
+    iSetColor(200, 200, 200);
+    iFilledRectangle(280, 270, 200, 50);
+    iSetColor(0, 0, 0);
+    iText(350, 290, "Retry", GLUT_BITMAP_HELVETICA_18);
+
+    // Menu Button
+    iSetColor(200, 200, 200);
+    iFilledRectangle(280, 200, 200, 50);
+    iSetColor(0, 0, 0);
+    iText(335, 220, "Main Menu", GLUT_BITMAP_HELVETICA_18);
+}
+
     else if (gameState == LEVEL_COMPLETE)
 {
     iClear();
@@ -638,6 +708,23 @@ void iMouse(int button, int state, int mx, int my)
         startLevel(currentLevel); // ✅ use helper
     }
 }
+else if (gameState == GAME_OVER_SCREEN)
+{
+    // Retry Button
+    if (mx >= 380 && mx <= 580 && my >= 270 && my <= 320)
+    {
+        life = 3;
+        startLevel(currentLevel);
+        gameState = GAME;
+    }
+
+    // Menu Button
+    else if (mx >= 380 && mx <= 580 && my >= 200 && my <= 250)
+    {
+        gameState = MENU;
+    }
+}
+
 
         else if (gameState == HELP)
         {
@@ -751,12 +838,12 @@ void iKeyboard(unsigned char key, int state)
     else if (gameState == GAME)
     {
         if (key == 'r' || key == 'R')
-        {
-            gameOver = false;
-            pic_x = 320;
-            pic_y = 90;
-            gameStartTime = time(NULL);
-        }
+{
+    gameOver = false;
+    life = 3;
+    startLevel(currentLevel); // Restart current level with full life
+}
+
         else if (key == 'p' || key == 'P')
         {
             isPaused = !isPaused;
@@ -909,6 +996,8 @@ int main(int argc, char *argv[])
 
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
+   // gameOverSoundIdx = iPlaySound("assets/sounds/Game over sound.mp3",true,30);
+
     iOpenWindow(800, 500, "Super Mario");
     //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
