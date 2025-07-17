@@ -86,6 +86,8 @@ void load_bg()
     iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
 }
 void startLevel(int level) {
+    score = 0; // ✅ reset score here
+
     tile_idx = 0;
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
         tile_type[i] = '_';
@@ -911,4 +913,4 @@ int main(int argc, char *argv[])
     //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
     return 0;
-}
+}    
