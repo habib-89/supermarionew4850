@@ -99,78 +99,76 @@ void loadLevelFromFile(int level)
     }
 
     char ch;
-for (int i = 0; i < MAP_HEIGHT; i++)
-{
-    int j = 0;
-    while (j < MAP_WIDTH)
+    for (int i = 0; i < MAP_HEIGHT; i++)
     {
-        fscanf(fp, "%c", &ch);
-        if (ch == '\n' || ch == '\r') continue; // skip line breaks
-        tileMap[i][j] = ch;
-        j++;
+        int j = 0;
+        while (j < MAP_WIDTH)
+        {
+            fscanf(fp, "%c", &ch);
+            if (ch == '\n' || ch == '\r') continue; // skip line breaks
+            tileMap[i][j] = ch;
+            j++;
+        }
     }
-}
-Image flagImg;
-iLoadImage(&flagImg, "assets/GameBG/Win Flag002.png"); // put flag image in that folder
-iInitSprite(&flag);
-iChangeSpriteFrames(&flag, &flagImg, 1);
-iSetSpritePosition(&flag, lastBrickX + 100, GROUND); // Place flag just after last brick
-
-
-
     fclose(fp);
 
-
-
+    // Load tiles
     iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
     iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
 
+    Image flagImg;
+    iLoadImage(&flagImg, "assets/GameBG/Win Flag002.png");
+
     tile_idx = 0;
     tile_x = 0;
+    lastBrickX = 0;
     const int h = tile_height * (MAP_HEIGHT - 1);
+
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
         tile_y = h - tile_height * y;
         tile_x = 0;
         for (int x = 0; x < MAP_WIDTH; x++)
         {
-           if (tileMap[y][x] == '*')
-{
-    iInitSprite(&tiles[tile_idx]);
-    iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
-    iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+            char current = tileMap[y][x];
 
-    iInitSprite(&tiles[tile_idx]);
-iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
-iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+            if (current == '*')
+            {
+                iInitSprite(&tiles[tile_idx]);
+                iChangeSpriteFrames(&tiles[tile_idx], &tile_set[0], 1);
+                iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+                tile_type[tile_idx] = '*';
+                tile_idx++;
 
-tile_type[tile_idx] = '*';
-tile_idx++;
+                if (tile_x > lastBrickX)
+                    lastBrickX = tile_x;
 
-if (tile_x > lastBrickX)  // Move after placing tile
-    lastBrickX = tile_x;
-
-tile_x += tile_width; // You must increment after placement
-
-
-    tile_type[tile_idx] = '*';
-    tile_idx++;
-}
-
-            else if (tileMap[y][x] == 'o')
+                tile_x += tile_width;
+            }
+            else if (current == 'o')
             {
                 iInitSprite(&tiles[tile_idx]);
                 iChangeSpriteFrames(&tiles[tile_idx], &tile_set[1], 1);
                 iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
-                tile_x += tile_width;
                 tile_type[tile_idx] = 'o';
                 tile_idx++;
-            }
-            else if (tileMap[y][x] == '_')
                 tile_x += tile_width;
+            }
+            else if (current == 'F')
+            {
+                iInitSprite(&flag);
+                iChangeSpriteFrames(&flag, &flagImg, 1);
+                iSetSpritePosition(&flag, tile_x, tile_y);
+                tile_x += tile_width;
+            }
+            else if (current == '_')
+            {
+                tile_x += tile_width;
+            }
         }
     }
 }
+
 
 void loadResources()
 {
