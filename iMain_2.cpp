@@ -86,6 +86,8 @@ void load_bg()
     iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
 }
 void startLevel(int level) {
+    score = 0; // ✅ reset score here
+
     tile_idx = 0;
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
         tile_type[i] = '_';
@@ -259,86 +261,6 @@ int collision_idx(Sprite *s)
     return -1;
 }
 
-// void update_jump()
-// {
-//     Sprite test = golem;
-//     int idx;
-
-//     if (jump)
-//     {
-
-//         test.y = golem.y + jump_speed;
-
-//         idx = collision_idx(&test);
-
-//         if (idx != -1)
-//         {
-
-//             if (jump_speed < 0)
-//             {
-//                 golem.y = tiles[idx].y + tile_height;
-//                 jump = 0;
-//                 jump_speed = 0;
-//                 activity(1);
-//             }
-//             else
-//             {
-//                 golem.y = tiles[idx].y - golem_height;
-//                 jump_speed = 0;
-//             }
-//         }
-//         else
-//         {
-
-//             golem.y += jump_speed;
-//             jump_speed -= gravity;
-//         }
-
-//         if (direction == 1 && golem.x < 350)
-//         {
-//             golem.x += golemSpeed;
-//             activity(2);
-//         }
-//         else if (direction == 1 && golem.x >= 350)
-//         {
-//             speed = -golemSpeed;
-//         }
-//         else if (direction == -1)
-//         {
-//             golem.x -= golemSpeed;
-//             activity(2);
-//         }
-//     }
-//     else
-//     {
-//         test.y = golem.y - 1;
-//         idx = collision_idx(&test);
-//         if (idx == -1)
-//         {
-//             jump = 1;
-//             jump_speed = -1;
-//         }
-//     }
-//     for (int i = 0; i < tile_idx; i++)
-//     {
-//         if (tile_type[i] == 'o')
-//         {
-//             Sprite coin_test = tiles[i];
-//             if (iCheckCollision(&golem, &coin_test))
-//             {
-//                 tile_type[i] = '_';
-//                 // iSetSpritePosition(&tiles[i], -100, -100);
-//                 score += 10;
-//             }
-//         }
-//     }
-//     if (!levelComplete && iCheckCollision(&golem, &flag))
-//     {
-//         levelComplete = true;
-//         printf("Level Complete!\n");
-//         gameState = LEVEL_SELECT;
-//     }
-// }
 
 
 void update_jump()
@@ -993,4 +915,4 @@ int main(int argc, char *argv[])
     //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
     return 0;
-}
+}    
