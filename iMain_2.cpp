@@ -40,7 +40,7 @@ Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
 
 int speed = 0;
-int golemSpeed = 3;
+int golemSpeed = 6;
 int golem_running = 0;
 int animation = -1; // 0 idle, 1 run, 2 jump
 bool going_right = true;
@@ -54,8 +54,7 @@ char tile_type[MAP_HEIGHT * MAP_WIDTH];
 int gameState = FRONT_PAGE;
 int gameStartTime = 0;
 
-const int bgScrollSpeed = 2;
-int bgScrollX = 0;
+int bgScrollX = 2;
 
 int tile_idx = 0;
 int scroll_x = 0;
@@ -74,9 +73,6 @@ int score = 0;
 Sprite flag;
 int lastBrickX = 0;
 bool levelComplete = false;
-
-
-
 
 void load_bg()
 {
@@ -319,35 +315,30 @@ void update_jump()
 
     if (jump)
     {
-        // Predict new Y position for collision test
         test.y = golem.y + jump_speed;
+
         idx = collision_idx(&test);
 
         if (idx != -1)
         {
-            if (jump_speed < 0)
+            if (jump_speed < 0) 
             {
-                // Landing on tile
-                golem.y = tiles[idx].y + tile_height;
+                golem.y = tiles[idx].y + tile_height; 
                 jump = 0;
                 jump_speed = 0;
-                activity(1); // run
+                activity(1); 
             }
-            else
+            else 
             {
-                // Hitting ceiling
-                golem.y = tiles[idx].y - golem_height;
-                jump_speed = 0;
+                golem.y = tiles[idx].y - golem_height; 
+                jump_speed = 0; 
             }
         }
         else
         {
-            // No collision, apply gravity
             golem.y += jump_speed;
             jump_speed -= gravity;
         }
-
-        // Handle horizontal movement during jump
         if (direction == 1 && golem.x < 350)
         {
             golem.x += golemSpeed;
@@ -375,8 +366,36 @@ void update_jump()
             jump_speed = -1;
         }
     }
+    // Check for coin collection (always check, regardless of jump)
+    for (int i = 0; i < tile_idx; i++)
+    {
+        if (tile_type[i] == 'o') // only if tile is coin
+        {
+            Sprite coin_test = tiles[i];
+            if (iCheckCollision(&golem, &coin_test))
+            {
+                tile_type[i] = '_';               // mark as collected
+                iSetSpritePosition(&tiles[i], -100, -100); // move out of view
+                score += 10;                      // increase score
+                // Optional: play coin sound
+            }
+        }
+    }
 
-    // Coin collection
+// Check flag collision
+    if (!levelComplete && iCheckCollision(&golem, &flag))
+    {
+        levelComplete = true;
+        printf("Level Complete!\n");
+
+        // Optional: go to menu or next level
+        gameState = LEVEL_COMPLETE;
+    }
+
+
+
+
+
     for (int i = 0; i < tile_idx; i++)
     {
         if (tile_type[i] == 'o')
@@ -509,15 +528,11 @@ void iDraw()
 
         iShowSprite(&golem);
 
-        if (direction == 1 && golem.x >= 350)
+        if (direction == 1 && golem.x >=350)
         {
-            iWrapImage(&bg[currentLevel], bgScrollX);
+            //  bgScrollX
+            iWrapImage(&bg[currentLevel],-2);
         }
-        else
-        {
-            iWrapImage(&bg[currentLevel], 0);
-        }
-
         char scoreStr[50];
         sprintf(scoreStr, "Score: %d", score);
         iSetColor(255, 255, 255);
@@ -575,7 +590,7 @@ void resetTilePositionsForNewGame()
     {
         iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
     }
-    iSetSpritePosition(&flag, flag.x + scroll_x, flag.y); // ✅ adjust flag position too
+    iSetSpritePosition(&flag, flag.x + scroll_x, flag.y); 
     scroll_x = 0;
 }
 
@@ -781,8 +796,6 @@ void iMouse(int button, int state, int mx, int my)
                 }
                 scroll_x = 0;
 
-
-
                 gameOver = false;
                 gameStartTime = time(NULL);
                 gameState = GAME;
@@ -922,19 +935,17 @@ void iKeyboard(unsigned char key, int state)
     default:
         break;
     }
-    if (key == '+') // faster
-    {
-        if (golemSpeed < 15)
-            golemSpeed++;
-    }
-    else if (key == '-') // slower
-    {
-        if (golemSpeed > 1)
-            golemSpeed--;
-    }
-
+    // if (key == '+') // faster
+    // {
+    //     if (golemSpeed < 15)
+    //         golemSpeed++;
+    // }
+    // else if (key == '-') // slower
+    // {
+    //     if (golemSpeed > 1)
+    //         golemSpeed--;
+    // }
 }
-
 
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
@@ -1042,7 +1053,7 @@ void animate_tile()
 
         flag.x -= golemSpeed;
 
-        bgScrollX += golemSpeed / 4;
+        // bgScrollX += golemSpeed / 4;
     }
 }
 
@@ -1054,7 +1065,7 @@ int main(int argc, char *argv[])
 
     load_bg();
     iSetTimer(100, iAnim);
-    iSetTimer(20, animate_tile);
+    iSetTimer(19, animate_tile);
     iSetTimer(20, update_jump);
 
     iInitializeSound();
