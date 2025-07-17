@@ -75,12 +75,9 @@ Sprite flag;
 int lastBrickX = 0;
 bool levelComplete = false;
 
-<<<<<<< HEAD
 
 
 
-=======
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
 void load_bg()
 {
     // Load backgrounds for 3 levels   Level1BG.png
@@ -320,144 +317,86 @@ void update_jump()
     Sprite test = golem;
     int idx;
 
-    if (jump) 
+    if (jump)
     {
-<<<<<<< HEAD
-
+        // Predict new Y position for collision test
         test.y = golem.y + jump_speed;
-
-
-=======
-        test.y = golem.y + jump_speed;
-
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
         idx = collision_idx(&test);
 
         if (idx != -1)
         {
-<<<<<<< HEAD
-
             if (jump_speed < 0)
             {
-                // Landing on top of tile
+                // Landing on tile
                 golem.y = tiles[idx].y + tile_height;
                 jump = 0;
                 jump_speed = 0;
-                activity(1);
+                activity(1); // run
             }
             else
             {
-                // Hitting head on tile from below (ceiling)
+                // Hitting ceiling
                 golem.y = tiles[idx].y - golem_height;
-                jump_speed = 0; // Stop upward movement
-            }
-
-        }
-        else
-        {
-
-=======
-            if (jump_speed < 0) 
-            {
-                golem.y = tiles[idx].y + tile_height; 
-                jump = 0;
                 jump_speed = 0;
-                activity(1); 
-            }
-            else 
-            {
-                golem.y = tiles[idx].y - golem_height; 
-                jump_speed = 0; 
             }
         }
         else
         {
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
+            // No collision, apply gravity
             golem.y += jump_speed;
-            jump_speed -= gravity; 
+            jump_speed -= gravity;
         }
-<<<<<<< HEAD
 
-
-=======
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
+        // Handle horizontal movement during jump
         if (direction == 1 && golem.x < 350)
         {
             golem.x += golemSpeed;
         }
         else if (direction == 1 && golem.x >= 350)
         {
-            speed = -golemSpeed; 
+            speed = -golemSpeed;
         }
         else if (direction == -1)
         {
             golem.x -= golemSpeed;
         }
 
-        activity(2); 
+        activity(2); // jumping animation
     }
     else
     {
+        // Check if golem is falling off a ledge
         test.y = golem.y - 1;
         idx = collision_idx(&test);
 
-        if (idx == -1) 
+        if (idx == -1)
         {
             jump = 1;
-            jump_speed = -1; 
-        }
-    }
-<<<<<<< HEAD
-    // Check for coin collection (always check, regardless of jump)
-    for (int i = 0; i < tile_idx; i++)
-    {
-        if (tile_type[i] == 'o') // only if tile is coin
-        {
-            Sprite coin_test = tiles[i];
-            if (iCheckCollision(&golem, &coin_test))
-            {
-                tile_type[i] = '_';               // mark as collected
-                iSetSpritePosition(&tiles[i], -100, -100); // move out of view
-                score += 10;                      // increase score
-                // Optional: play coin sound
-            }
+            jump_speed = -1;
         }
     }
 
-// Check flag collision
-    if (!levelComplete && iCheckCollision(&golem, &flag))
-    {
-        levelComplete = true;
-        printf("Level Complete!\n");
-
-        // Optional: go to menu or next level
-        gameState = LEVEL_COMPLETE;
-    }
-
-
-
-
-=======
-
+    // Coin collection
     for (int i = 0; i < tile_idx; i++)
     {
         if (tile_type[i] == 'o')
         {
             if (iCheckCollision(&golem, &tiles[i]))
             {
-                tile_type[i] = '_'; 
-                // iSetSpritePosition(&tiles[i], -100, -100); 
+                tile_type[i] = '_'; // mark coin as collected
+                iSetSpritePosition(&tiles[i], -100, -100); // hide coin
                 score += 10;
+                // Optional: play coin sound
             }
         }
     }
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
 
+    // Flag collision (level complete)
     if (!levelComplete && iCheckCollision(&golem, &flag))
     {
         levelComplete = true;
         printf("Level Complete!\n");
-        gameState = LEVEL_SELECT;
+        gameState = LEVEL_COMPLETE;
     }
 }
 
@@ -726,20 +665,12 @@ void iMouse(int button, int state, int mx, int my)
                 animation = -1;
                 activity(0);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
                 // Reset scroll BEFORE changing tile positions
                 for (int i = 0; i < tile_idx; i++)
                 {
                     iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
                 }
                 scroll_x = 0;
-<<<<<<< HEAD
-
-=======
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -767,11 +698,6 @@ void iMouse(int button, int state, int mx, int my)
                     iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
                 }
                 scroll_x = 0;
-<<<<<<< HEAD
-
-
-=======
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -799,10 +725,6 @@ void iMouse(int button, int state, int mx, int my)
                     iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
                 }
                 scroll_x = 0;
-<<<<<<< HEAD
-
-=======
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -858,11 +780,8 @@ void iMouse(int button, int state, int mx, int my)
                     iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
                 }
                 scroll_x = 0;
-<<<<<<< HEAD
 
 
-=======
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -1013,13 +932,9 @@ void iKeyboard(unsigned char key, int state)
         if (golemSpeed > 1)
             golemSpeed--;
     }
-<<<<<<< HEAD
 
 }
 
-=======
-}
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
 
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
@@ -1061,11 +976,7 @@ void iAnim()
         if (idx == -1)
         {
             // Prevent golem from going beyond last brick + flag
-<<<<<<< HEAD
             if (golem.x + scroll_x >= lastBrickX + tile_width + 150)
-=======
-            if (golem.x + scroll_x >= lastBrickX + tile_width + 50)
->>>>>>> cceb638ba58dca812a6482f9e59c29dc115940c6
             {
                 direction = 0;
                 return;
