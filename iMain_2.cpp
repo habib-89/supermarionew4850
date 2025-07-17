@@ -301,6 +301,7 @@ int collision_idx(Sprite *s)
 
 void update_jump()
 {
+    if (gameState != GAME ) return;
     Sprite test = golem;
     int idx;
 
@@ -727,25 +728,35 @@ void iMouse(int button, int state, int mx, int my)
                 startLevel(currentLevel); // ✅ use helper
             }
         }
-        else if (gameState == GAME_OVER_SCREEN)
-        {
-            // Retry Button
-            if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
-            {
-                life = 3;
-                startLevel(currentLevel);
-                gameState = GAME;
-            }
+        // else if (gameState == GAME_OVER_SCREEN)
+        // {
+        //     // Retry Button
+        //     if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
+        //     {
+        //         life = 3;
+        //         startLevel(currentLevel);
+        //         gameState = GAME;
+        //     }
 
-            // Menu Button
-            else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
-            {
-                gameState = MENU;
-            }
+        //     // Menu Button
+        //     else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
+        //     {
+        //         gameState = MENU;
+        //     }
+        // }
+    }
+    else if (gameState == GAME_OVER_SCREEN)
+    {
+        // Retry Button
+        if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
+        {
+            life = 3;
+            startLevel(currentLevel);
+            gameState = GAME;
         }
 
         // Menu Button
-        else if (mx >= 380 && mx <= 580 && my >= 200 && my <= 250)
+        else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
         {
             gameState = MENU;
         }
@@ -919,6 +930,8 @@ GLUT_KEY_INSERT */
 
 void iAnim()
 {
+    
+    if (gameState != GAME ) return;
     int idx;
 
     if (dead)
@@ -1002,6 +1015,8 @@ void iAnim()
 
 void animate_tile()
 {
+    
+    if (gameState != GAME ) return;
     if (direction == 1 && golem.x >= 350)
     {
         // Stop scrolling when last brick is visible on screen
