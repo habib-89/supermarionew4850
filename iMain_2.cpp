@@ -761,6 +761,23 @@ void iMouse(int button, int state, int mx, int my)
                 gameState = MENU;
             }
         }
+         else if (gameState == GAME_OVER_SCREEN)
+         {
+           //   Retry Button
+             if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
+             {
+                 life = 3;
+                 startLevel(currentLevel);
+                 gameState = GAME;
+             }
+
+            // Menu Button
+            else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
+            {
+                gameState = MENU;
+            }
+        }
+
 
         
 
