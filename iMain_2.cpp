@@ -918,7 +918,7 @@ void iKeyboard(unsigned char key, int state)
     case 'x':
         iStopSound(bgSoundIdx);
         break;
-    // place your codes for other keys here
+    
     default:
         break;
     }
@@ -1006,20 +1006,7 @@ void iAnim()
 
     iAnimateSprite(&golem);
 }
-/*
-void animate_tile()
-{
-    if (direction == 1 && golem.x >= 350)
-    {
-        for (int i = 0; i < tile_idx; i++)
-        {
-            tiles[i].x += speed;
-        }
-         bgScrollX += abs(speed) / 4;
-    }
 
-}
-    */
 
 void animate_tile()
 {
