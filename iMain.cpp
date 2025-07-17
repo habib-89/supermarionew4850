@@ -887,6 +887,6 @@ int main(int argc, char *argv[])
     iSetTimer(20, iUpdate); // Call iUpdate every 20 ms
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
-    iInitialize(800, 500, "Super Mario");
+    iOpenWindow(800, 500, "Super Mario");
     return 0;
 }
