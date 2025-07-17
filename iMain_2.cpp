@@ -54,7 +54,7 @@ char tile_type[MAP_HEIGHT * MAP_WIDTH];
 int gameState = FRONT_PAGE;
 int gameStartTime = 0;
 
-int bgScrollX = 2;
+float bgScrollX = .5;
 
 int tile_idx = 0;
 int scroll_x = 0;
@@ -74,12 +74,45 @@ Sprite flag;
 int lastBrickX = 0;
 bool levelComplete = false;
 
+void loadLevelFromFile(int level);  // declare existing function
+void activity(int index);           // declare existing function
+
+
 void load_bg()
 {
     // Load backgrounds for 3 levels   Level1BG.png
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
     iLoadImage(&bg[2], "Game Project Pic/Level2BG.jpg");
     iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
+}
+void startLevel(int level) {
+    tile_idx = 0;
+    for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
+        tile_type[i] = '_';
+    }
+
+    scroll_x = 0;
+    loadLevelFromFile(level);
+
+    for (int i = 0; i < tile_idx; i++) {
+        iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
+    }
+    iSetSpritePosition(&flag, flag.x + scroll_x, flag.y);
+
+    golem.x = 70;
+    golem.y = GROUND;
+    direction = 0;
+    speed = 0;
+    jump = 0;
+    jump_speed = 0;
+    animation = -1;
+    activity(0);
+
+    levelComplete = false;
+    gameOver = false;
+    gameStartTime = time(NULL);
+    gameState = GAME;
+    isPaused = false;
 }
 
 void loadLevelFromFile(int level)
@@ -665,88 +698,27 @@ void iMouse(int button, int state, int mx, int my)
         }
 
         else if (gameState == LEVEL_SELECT)
-        {
-            // Level-1 button
-            if (mx >= 58 && mx <= 369 && my >= 194 && my <= 244)
-            {
-                currentLevel = 1;
-                loadLevelFromFile(currentLevel);
-                golem.x = 70;
-                golem.y = GROUND;
-                direction = 0;
-                speed = 0;
-                jump = 0;
-                jump_speed = 0;
-                animation = -1;
-                activity(0);
+{
+    // Level-1 button
+    if (mx >= 58 && mx <= 369 && my >= 194 && my <= 244)
+    {
+        currentLevel = 1;
+        startLevel(currentLevel); // ✅ use helper
+    }
+    // Level-2 button
+    else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
+    {
+        currentLevel = 2;
+        startLevel(currentLevel); // ✅ use helper
+    }
+    // Level-3 button
+    else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
+    {
+        currentLevel = 3;
+        startLevel(currentLevel); // ✅ use helper
+    }
+}
 
-                // Reset scroll BEFORE changing tile positions
-                for (int i = 0; i < tile_idx; i++)
-                {
-                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-                }
-                scroll_x = 0;
-
-                gameOver = false;
-                gameStartTime = time(NULL);
-                gameState = GAME;
-                isPaused = false;
-            }
-            // Level-2 button
-            else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
-            {
-                currentLevel = 2;
-                loadLevelFromFile(currentLevel);
-                golem.x = 70;
-                golem.y = GROUND;
-                direction = 0;
-                speed = 0;
-                jump = 0;
-                jump_speed = 0;
-                animation = -1;
-                activity(0);
-
-                // Reset camera
-                // Reset scroll BEFORE changing tile positions
-                for (int i = 0; i < tile_idx; i++)
-                {
-                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-                }
-                scroll_x = 0;
-
-                gameOver = false;
-                gameStartTime = time(NULL);
-                gameState = GAME;
-                isPaused = false;
-            }
-            // Level-3 button
-            else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
-            {
-                currentLevel = 3;
-                loadLevelFromFile(currentLevel);
-                golem.x = 70;
-                golem.y = GROUND;
-                direction = 0;
-                speed = 0;
-                jump = 0;
-                jump_speed = 0;
-                animation = -1;
-                activity(0);
-
-                // Reset camera
-                // Reset scroll BEFORE changing tile positions
-                for (int i = 0; i < tile_idx; i++)
-                {
-                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-                }
-                scroll_x = 0;
-
-                gameOver = false;
-                gameStartTime = time(NULL);
-                gameState = GAME;
-                isPaused = false;
-            }
-        }
         else if (gameState == HELP)
         {
             // Back button
@@ -773,34 +745,12 @@ void iMouse(int button, int state, int mx, int my)
                 isPaused = false;
             }
             // New Game
-            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
-            {
-                // Reset everything for new game
-                currentLevel = 1;
-                loadLevelFromFile(currentLevel);
+           else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
+{
+    currentLevel = 1;
+    startLevel(currentLevel); // ✅ use helper
+}
 
-                golem.x = 70;
-                golem.y = GROUND;
-                direction = 0;
-                speed = 0;
-                jump = 0;
-                jump_speed = 0;
-                animation = -1;
-                activity(0);
-
-                // Reset camera
-                // Reset scroll BEFORE changing tile positions
-                for (int i = 0; i < tile_idx; i++)
-                {
-                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-                }
-                scroll_x = 0;
-
-                gameOver = false;
-                gameStartTime = time(NULL);
-                gameState = GAME;
-                isPaused = false;
-            }
             // Settings (optional)
             else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
             {
@@ -821,32 +771,14 @@ void iMouse(int button, int state, int mx, int my)
 {
     // Next Level
     if (mx >= 250 && mx <= 550 && my >= 180 && my <= 230)
+{
+    if (currentLevel < maxLevel)
     {
-        if (currentLevel < maxLevel)
-        {
-            currentLevel++;
-            loadLevelFromFile(currentLevel);
-            golem.x = 70;
-            golem.y = GROUND;
-            direction = 0;
-            speed = 0;
-            jump = 0;
-            jump_speed = 0;
-            animation = -1;
-            activity(0);
-
-            scroll_x = 0;
-            for (int i = 0; i < tile_idx; i++)
-            {
-                iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-            }
-
-            levelComplete = false;
-            gameOver = false;
-            gameStartTime = time(NULL);
-            gameState = GAME;
-        }
+        currentLevel++;
+        startLevel(currentLevel); // ✅ use helper
     }
+}
+
     // Main Menu
     else if (mx >= 250 && mx <= 550 && my >= 100 && my <= 150)
     {
