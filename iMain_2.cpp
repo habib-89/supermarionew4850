@@ -660,17 +660,13 @@ void iMouse(int button, int state, int mx, int my)
                 gameState = MENU;
             }
         }
-
         else if (gameState == MENU)
         {
-
             // New Game
             if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
             {
                 gameState = LEVEL_SELECT; 
             }
-            // Score
-
             // Help
             else if (mx >= 208 && mx <= 596 && my >= 114 && my <= 165)
             {
@@ -681,9 +677,8 @@ void iMouse(int button, int state, int mx, int my)
             {
                 exit(0);
             }
-
-            // previous game
-            if (mx >= 208 && mx <= 596 && my >= 270 && my <= 320)
+            // Previous Game
+            else if (mx >= 208 && mx <= 596 && my >= 270 && my <= 320)
             {
                 if (hasPreviousGame)
                 {
@@ -696,131 +691,82 @@ void iMouse(int button, int state, int mx, int my)
                 }
             }
         }
-
         else if (gameState == LEVEL_SELECT)
         {
-            // Level-1 button
             if (mx >= 58 && mx <= 369 && my >= 194 && my <= 244)
             {
                 currentLevel = 1;
-                startLevel(currentLevel); // ✅ use helper
+                startLevel(currentLevel);
             }
-            // Level-2 button
             else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
             {
                 currentLevel = 2;
-                startLevel(currentLevel); // ✅ use helper
+                startLevel(currentLevel);
             }
-            // Level-3 button
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
                 currentLevel = 3;
-                startLevel(currentLevel); // ✅ use helper
-            }
-        }
-        // else if (gameState == GAME_OVER_SCREEN)
-        // {
-        //     // Retry Button
-        //     if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
-        //     {
-        //         life = 3;
-        //         startLevel(currentLevel);
-        //         gameState = GAME;
-        //     }
-
-<<<<<<< Updated upstream
-        //     // Menu Button
-        //     else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
-        //     {
-        //         gameState = MENU;
-        //     }
-        // }
-    }
-    else if (gameState == GAME_OVER_SCREEN)
-    {
-        // Retry Button
-        if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
-        {
-            life = 3;
-            startLevel(currentLevel);
-            gameState = GAME;
-=======
-            // Menu Button
-            else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
-            {
-                gameState = MENU;
-            }
->>>>>>> Stashed changes
-        }
-
-    
-
-    else if (gameState == HELP)
-    {
-        // Back button
-        if (mx >= 230 && mx <= 330 && my >= 20 && my <= 55)
-        {
-            gameState = MENU;
-        }
-    }
-    else if (gameState == GAME)
-    {
-        // If pause button clicked
-        if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
-        {
-            gameState = PAUSE_MENU;
-            isPaused = true;
-        }
-    }
-    else if (gameState == PAUSE_MENU)
-    {
-        // Resume
-        if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
-        {
-            gameState = GAME;
-            isPaused = false;
-        }
-        // New Game
-        else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
-        {
-            currentLevel = 1;
-            startLevel(currentLevel); // ✅ use helper
-        }
-
-        // Settings (optional)
-        else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
-        {
-            // Just a placeholder for now
-            printf("Settings clicked\n");
-        }
-        // Main Menu
-        else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
-        {
-            gameState = MENU;
-            isPaused = false;
-        }
-    }
-    else if (gameState == LEVEL_COMPLETE)
-    {
-        // Next Level
-        if (mx >= 127 && mx <= 356 && my >= 68 && my <= 138)
-        {
-            if (currentLevel < maxLevel)
-            {
-                currentLevel++;
                 startLevel(currentLevel);
             }
         }
-
-        // Main Menu
-        else if (mx >= 418 && mx <= 608 && my >= 68 && my <= 138)
+        else if (gameState == HELP)
         {
-            gameState = MENU;
+            if (mx >= 230 && mx <= 330 && my >= 20 && my <= 55)
+            {
+                gameState = MENU;
+            }
         }
+        else if (gameState == GAME)
+        {
+            if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
+            {
+                gameState = PAUSE_MENU;
+                isPaused = true;
+            }
+        }
+        else if (gameState == PAUSE_MENU)
+        {
+            if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
+            {
+                gameState = GAME;
+                isPaused = false;
+            }
+            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
+            {
+                currentLevel = 1;
+                startLevel(currentLevel);
+            }
+            else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
+            {
+                printf("Settings clicked\n");
+            }
+            else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
+            {
+                gameState = MENU;
+                isPaused = false;
+            }
+        }
+        else if (gameState == LEVEL_COMPLETE)
+        {
+            if (mx >= 127 && mx <= 356 && my >= 68 && my <= 138)
+            {
+                if (currentLevel < maxLevel)
+                {
+                    currentLevel++;
+                    startLevel(currentLevel);
+                }
+            }
+            else if (mx >= 418 && mx <= 608 && my >= 68 && my <= 138)
+            {
+                gameState = MENU;
+            }
+        }
+
+        
+
+        // Debug mouse position
+        printf(" %d %d\n", mx, my);
     }
-    // For debug (optional)
-    printf(" %d %d\n", mx, my);
-}
 }
 
 /*
@@ -1053,4 +999,4 @@ int main(int argc, char *argv[])
     //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
     return 0;
-}
+}  
