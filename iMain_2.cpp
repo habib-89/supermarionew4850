@@ -17,8 +17,6 @@ using namespace std;
 #define LEVEL_COMPLETE 5
 #define GAME_OVER_SCREEN 6
 
-
-
 int golem_height = 76;
 int golem_width = 45;
 
@@ -38,6 +36,8 @@ Image bg[4];
 Image golem_idle[5];
 Image golem_run_frames[7];
 Image golem_jump_frames[11];
+Image golem_hurt_frames[3];
+Image golem_dead_frames[3];
 Image tile_set[3];
 Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
@@ -72,6 +72,7 @@ int currentLevel = 1;
 const int maxLevel = 3;
 
 int score = 0;
+int frame = 0;
 
 Sprite flag;
 int lastBrickX = 0;
@@ -81,13 +82,13 @@ Image heart_full, heart_empty;
 int life = 3; // Start with 3 lives
 bool hurt = false;
 int hurtTimer = 0;
-
-// int gameOverSoundIdx;
-
+bool dead = false;
+int deadTimer = 0;
+#define MAX_HURT_TIMER 50
+#define MAX_DEAD_TIMER 50
 
 void loadLevelFromFile(int level);
 void activity(int index);
-
 
 void load_bg()
 {
@@ -97,9 +98,12 @@ void load_bg()
 }
 void startLevel(int level)
 {
-    score = 0; // ✅ reset score here
+    score = 0;
     life = 3;
-
+    hurt = false;
+    hurtTimer = 0;
+    dead = false;
+    deadTimer = 0;
     tile_idx = 0;
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++)
     {
@@ -161,7 +165,7 @@ void loadLevelFromFile(int level)
     // Load tiles
     iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
     iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
-    iLoadImage(&tile_set[2], "assets/Level1image/Spikes.png");  // spikes
+    iLoadImage(&tile_set[2], "assets/Level1image/Spikes.png");   // spikes
 
     Image flagImg;
     iLoadImage(&flagImg, "assets/GameBG/Win Flag002.png");
@@ -201,7 +205,7 @@ void loadLevelFromFile(int level)
                 tile_idx++;
                 tile_x += tile_width;
             }
-            else if(current == 'x')
+            else if (current == 'x')
             {
                 iInitSprite(&tiles[tile_idx]);
                 iChangeSpriteFrames(&tiles[tile_idx], &tile_set[2], 1);
@@ -231,12 +235,13 @@ void loadResources()
     iLoadFramesFromFolder(golem_idle, "player/idle");
     iLoadFramesFromFolder(golem_run_frames, "Game Project Pic/run");
     iLoadFramesFromFolder(golem_jump_frames, "Game Project Pic/jump");
+    iLoadFramesFromFolder(golem_hurt_frames, "player/hurt");
+    iLoadFramesFromFolder(golem_dead_frames, "player/dead");
     iInitSprite(&golem);
     iChangeSpriteFrames(&golem, golem_idle, 1);
     iSetSpritePosition(&golem, 70, 122);
-    iLoadImage(&heart_full, "assets/Heart/HeartRed.png");   // Use your red heart image
+    iLoadImage(&heart_full, "assets/Heart/HeartRed.png");    // Use your red heart image
     iLoadImage(&heart_empty, "assets/Heart/HeartBlack.png"); // Use your black heart image
-
 }
 
 void saveGameState()
@@ -273,6 +278,10 @@ void activity(int current_state)
             iChangeSpriteFrames(&golem, golem_run_frames, 7);
         if (current_state == 2)
             iChangeSpriteFrames(&golem, golem_jump_frames, 10);
+        if (current_state == 3)
+            iChangeSpriteFrames(&golem, golem_hurt_frames, 3);
+        if (current_state == 4)
+            iChangeSpriteFrames(&golem, golem_dead_frames, 3);
     }
 }
 
@@ -280,7 +289,8 @@ int collision_idx(Sprite *s)
 {
     for (int i = 0; i < tile_idx; i++)
     {
-        if(tile_type[i] != '*') continue;
+        if (tile_type[i] != '*')
+            continue;
         if (iCheckCollision(s, &tiles[i]))
         {
             return i;
@@ -288,8 +298,6 @@ int collision_idx(Sprite *s)
     }
     return -1;
 }
-
-
 
 void update_jump()
 {
@@ -355,7 +363,7 @@ void update_jump()
         }
     }
 
-    //coin
+    // coin
 
     for (int i = 0; i < tile_idx; i++)
     {
@@ -364,7 +372,7 @@ void update_jump()
             if (iCheckCollision(&golem, &tiles[i]))
             {
                 tile_type[i] = '_';
-                iSetSpritePosition(&tiles[i], -100, -100);
+                // iSetSpritePosition(&tiles[i], -100, -100);
                 score += 10;
             }
         }
@@ -380,14 +388,33 @@ void update_jump()
                 hurt = true;
                 hurtTimer = 0;
 
-                if (life <= 0)
+                direction = 0;
+                speed = 0;
+                if (golem.x < tiles[i].x)
+                    golem.x = tiles[i].x - tile_width * 3;
+                else
+                    golem.x = tiles[i].x + tile_width;
+                if (life > 0)
                 {
-                    gameOver = true;
-                    direction=0;
+                    activity(3); // Hurt animation
                 }
+                else
+                {
+                    dead = true;
+                    activity(4);
+                    frame = 0;
+                    deadTimer = 0; // Dead animation
+                }
+                // hurtTimer = 0;
+                // if (life <= 0)
+                // {
+                //     dead = true;
+
+                //     gameOver = true;
+                //     direction = 0;
+                // }
             }
         }
-
     }
 
     // Flag collision
@@ -399,26 +426,29 @@ void update_jump()
         printf("Level Complete!\n");
         gameState = LEVEL_COMPLETE;
     }
-    if (hurt)
+    if (hurt && !dead)
     {
         hurtTimer++;
-        if (hurtTimer > 50) // About 1 second (adjust as needed)
+        if (hurtTimer > MAX_HURT_TIMER) // About 1 second (adjust as needed)
         {
             hurt = false;
             hurtTimer = 0;
         }
     }
-    if (life <= 0)
+    if (dead)
     {
-        gameOver = true;
-        direction = 0;
-        gameState = GAME_OVER_SCREEN; // <-- NEW!
-
+        deadTimer++;
+        if (deadTimer > MAX_DEAD_TIMER)
+        {
+            gameOver = true;
+            direction = 0;
+            gameState = GAME_OVER_SCREEN;
+        }
+        // gameOver = true;
+        // direction = 0;
+        // gameState = GAME_OVER_SCREEN; // <-- NEW!
     }
-
-
 }
-
 
 void iSpecialKeyboard(unsigned char key, int state)
 {
@@ -429,7 +459,7 @@ void iSpecialKeyboard(unsigned char key, int state)
             printf("%d %d", golem.x, golem.y);
             exit(0);
         }
-        if (key == GLUT_KEY_LEFT)
+        if (key == GLUT_KEY_LEFT && !dead)
         {
             direction = -1;
             if (going_right)
@@ -438,7 +468,7 @@ void iSpecialKeyboard(unsigned char key, int state)
                 going_right = false;
             }
         }
-        if (key == GLUT_KEY_RIGHT)
+        if (key == GLUT_KEY_RIGHT && !dead)
         {
             direction = 1;
             if (!going_right)
@@ -447,7 +477,7 @@ void iSpecialKeyboard(unsigned char key, int state)
                 going_right = true;
             }
         }
-        if (key == GLUT_KEY_UP)
+        if (key == GLUT_KEY_UP && !dead)
         {
             if (!jump)
             {
@@ -528,10 +558,10 @@ void iDraw()
 
         iShowSprite(&golem);
 
-        if (direction == 1 && golem.x >=350)
+        if (direction == 1 && golem.x >= 350)
         {
             //  bgScrollX
-            iWrapImage(&bg[currentLevel],-2);
+            iWrapImage(&bg[currentLevel], -2);
         }
         char scoreStr[50];
         sprintf(scoreStr, "Score: %d", score);
@@ -559,11 +589,10 @@ void iDraw()
         for (int i = 0; i < 3; i++)
         {
             if (i < life)
-                iShowLoadedImage(20 + i * 35, 400, &heart_full);   // red heart
+                iShowLoadedImage(20 + i * 35, 400, &heart_full); // red heart
             else
                 iShowLoadedImage(20 + i * 35, 400, &heart_empty); // black heart
         }
-
 
         // Show the flag sprite
         iShowSprite(&flag);
@@ -576,17 +605,26 @@ void iDraw()
     else if (gameState == GAME_OVER_SCREEN)
     {
         iClear();
-        iShowImage(0,0,"assets/GameBG/Gameoverbg001.png");
+        iShowImage(0, 0, "assets/GameBG/Gameoverbg001.png");
     }
 
     else if (gameState == LEVEL_COMPLETE)
     {
         iClear();
-        iShowImage(0, 0, "assets/GameBG/Level Complete001.png");
+        // iShowImage(0, 0, "assets/GameBG/LevelComplete001.png");
 
-       
+        iSetColor(255, 255, 255);
+        iText(300, 300, "Level Complete!", GLUT_BITMAP_TIMES_ROMAN_24);
+
+        // Draw buttons
+        iSetColor(100, 100, 100);
+        iFilledRectangle(250, 180, 300, 50); // Next Level
+        iFilledRectangle(250, 100, 300, 50); // Menu
+
+        iSetColor(255, 255, 255);
+        iText(340, 200, "Next Level");
+        iText(360, 120, "Main Menu");
     }
-
 }
 void resetTilePositionsForNewGame()
 {
@@ -680,13 +718,13 @@ void iMouse(int button, int state, int mx, int my)
             else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
             {
                 currentLevel = 2;
-                startLevel(currentLevel);
+                startLevel(currentLevel); // ✅ use helper
             }
             // Level-3 button
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
                 currentLevel = 3;
-                startLevel(currentLevel);
+                startLevel(currentLevel); // ✅ use helper
             }
         }
         else if (gameState == GAME_OVER_SCREEN)
@@ -700,83 +738,84 @@ void iMouse(int button, int state, int mx, int my)
             }
 
             // Menu Button
-            if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
+            else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
             {
                 gameState = MENU;
             }
         }
 
-
-        else if (gameState == HELP)
+        // Menu Button
+        else if (mx >= 380 && mx <= 580 && my >= 200 && my <= 250)
         {
-            // Back button
-            if (mx >= 230 && mx <= 330 && my >= 20 && my <= 55)
-            {
-                gameState = MENU;
-            }
+            gameState = MENU;
         }
-        else if (gameState == GAME)
-        {
-            // If pause button clicked
-            if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
-            {
-                gameState = PAUSE_MENU;
-                isPaused = true;
-            }
-         
-        }
-        else if (gameState == PAUSE_MENU)
-        {
-            // Resume
-            if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
-            {
-                gameState = GAME;
-                isPaused = false;
-            }
-            // New Game
-            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
-            {
-                currentLevel = 1;
-                startLevel(currentLevel); 
-            }
-
-            // Settings (optional)
-            else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
-            {
-            
-                printf("Settings clicked\n");
-            }
-            // Main Menu
-            else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
-            {
-                gameState = MENU;
-                isPaused = false;
-            }
-
-
-
-        }
-        else if (gameState == LEVEL_COMPLETE)
-        {
-            // Next Level
-            if (mx >= 127 && mx <= 356 && my >= 68 && my <= 138)
-            {
-                if (currentLevel < maxLevel)
-                {
-                    currentLevel++;
-                    startLevel(currentLevel); 
-                }
-            }
-
-            // Main Menu
-            else if (mx >= 418 && mx <= 608 && my >= 68 && my <= 138)
-            {
-                gameState = MENU;
-            }
-        }
-        // For debug (optional)
-        printf(" %d %d\n", mx, my);
     }
+
+    else if (gameState == HELP)
+    {
+        // Back button
+        if (mx >= 230 && mx <= 330 && my >= 20 && my <= 55)
+        {
+            gameState = MENU;
+        }
+    }
+    else if (gameState == GAME)
+    {
+        // If pause button clicked
+        if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
+        {
+            gameState = PAUSE_MENU;
+            isPaused = true;
+        }
+    }
+    else if (gameState == PAUSE_MENU)
+    {
+        // Resume
+        if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
+        {
+            gameState = GAME;
+            isPaused = false;
+        }
+        // New Game
+        else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
+        {
+            currentLevel = 1;
+            startLevel(currentLevel); // ✅ use helper
+        }
+
+        // Settings (optional)
+        else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
+        {
+            // Just a placeholder for now
+            printf("Settings clicked\n");
+        }
+        // Main Menu
+        else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
+        {
+            gameState = MENU;
+            isPaused = false;
+        }
+    }
+    else if (gameState == LEVEL_COMPLETE)
+    {
+        // Next Level
+        if (mx >= 250 && mx <= 550 && my >= 180 && my <= 230)
+        {
+            if (currentLevel < maxLevel)
+            {
+                currentLevel++;
+                startLevel(currentLevel); // ✅ use helper
+            }
+        }
+
+        // Main Menu
+        else if (mx >= 250 && mx <= 550 && my >= 100 && my <= 150)
+        {
+            gameState = MENU;
+        }
+    }
+    // For debug (optional)
+    printf(" %d %d\n", mx, my);
 }
 
 /*
@@ -882,6 +921,28 @@ void iAnim()
 {
     int idx;
 
+    if (dead)
+    {
+        // iAnimateSprite(&golem);
+        if (frame < 2)
+        {
+            iAnimateSprite(&golem);
+            frame++;
+        }
+        else
+        {
+            golem.currentFrame = 2;
+        }
+        return;
+    }
+
+    if (hurt)
+    {
+        iAnimateSprite(&golem);
+        if (hurtTimer > MAX_HURT_TIMER)
+            return;
+    }
+
     if (jump)
     {
         iAnimateSprite(&golem);
@@ -939,7 +1000,6 @@ void iAnim()
     iAnimateSprite(&golem);
 }
 
-
 void animate_tile()
 {
     if (direction == 1 && golem.x >= 350)
@@ -974,7 +1034,7 @@ int main(int argc, char *argv[])
     load_bg();
     iSetTimer(100, iAnim);
     iSetTimer(19, animate_tile);
-    iSetTimer(20, update_jump);
+    iSetTimer(30, update_jump);
 
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
