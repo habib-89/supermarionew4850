@@ -14,7 +14,6 @@ using namespace std;
 #define GROUND 122
 #define PAUSE_MENU 20
 
-
 int golem_height = 76;
 int golem_width = 45;
 
@@ -39,7 +38,7 @@ Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
 
 int speed = 0;
-int golemSpeed = 3; 
+int golemSpeed = 3;
 int golem_running = 0;
 int animation = -1; // 0 idle, 1 run, 2 jump
 bool going_right = true;
@@ -55,7 +54,6 @@ int gameStartTime = 0;
 
 const int bgScrollSpeed = 2;
 int bgScrollX = 0;
-
 
 int tile_idx = 0;
 int scroll_x = 0;
@@ -75,15 +73,12 @@ Sprite flag;
 int lastBrickX = 0;
 bool levelComplete = false;
 
-
-
 void load_bg()
 {
     // Load backgrounds for 3 levels   Level1BG.png
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
     iLoadImage(&bg[2], "Game Project Pic/Level2BG.jpg");
     iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
-
 }
 
 void loadLevelFromFile(int level)
@@ -105,7 +100,8 @@ void loadLevelFromFile(int level)
         while (j < MAP_WIDTH)
         {
             fscanf(fp, "%c", &ch);
-            if (ch == '\n' || ch == '\r') continue; // skip line breaks
+            if (ch == '\n' || ch == '\r')
+                continue; // skip line breaks
             tileMap[i][j] = ch;
             j++;
         }
@@ -169,7 +165,6 @@ void loadLevelFromFile(int level)
     }
 }
 
-
 void loadResources()
 {
     iLoadFramesFromFolder(golem_idle, "Game Project Pic/walk");
@@ -219,10 +214,9 @@ void activity(int current_state)
 
 int collision_idx(Sprite *s)
 {
-    // tiles[i].x>0 && tiles[i].x<800
     for (int i = 0; i < tile_idx; i++)
     {
-        // golem.y>= ground &&
+        if(tile_type[i] != '*') continue;
         if (iCheckCollision(s, &tiles[i]))
         {
             return i;
@@ -231,104 +225,165 @@ int collision_idx(Sprite *s)
     return -1;
 }
 
+// void update_jump()
+// {
+//     Sprite test = golem;
+//     int idx;
+
+//     if (jump)
+//     {
+
+//         test.y = golem.y + jump_speed;
+
+//         idx = collision_idx(&test);
+
+//         if (idx != -1)
+//         {
+
+//             if (jump_speed < 0)
+//             {
+//                 golem.y = tiles[idx].y + tile_height;
+//                 jump = 0;
+//                 jump_speed = 0;
+//                 activity(1);
+//             }
+//             else
+//             {
+//                 golem.y = tiles[idx].y - golem_height;
+//                 jump_speed = 0;
+//             }
+//         }
+//         else
+//         {
+
+//             golem.y += jump_speed;
+//             jump_speed -= gravity;
+//         }
+
+//         if (direction == 1 && golem.x < 350)
+//         {
+//             golem.x += golemSpeed;
+//             activity(2);
+//         }
+//         else if (direction == 1 && golem.x >= 350)
+//         {
+//             speed = -golemSpeed;
+//         }
+//         else if (direction == -1)
+//         {
+//             golem.x -= golemSpeed;
+//             activity(2);
+//         }
+//     }
+//     else
+//     {
+//         test.y = golem.y - 1;
+//         idx = collision_idx(&test);
+//         if (idx == -1)
+//         {
+//             jump = 1;
+//             jump_speed = -1;
+//         }
+//     }
+//     for (int i = 0; i < tile_idx; i++)
+//     {
+//         if (tile_type[i] == 'o')
+//         {
+//             Sprite coin_test = tiles[i];
+//             if (iCheckCollision(&golem, &coin_test))
+//             {
+//                 tile_type[i] = '_';
+//                 // iSetSpritePosition(&tiles[i], -100, -100);
+//                 score += 10;
+//             }
+//         }
+//     }
+//     if (!levelComplete && iCheckCollision(&golem, &flag))
+//     {
+//         levelComplete = true;
+//         printf("Level Complete!\n");
+//         gameState = LEVEL_SELECT;
+//     }
+// }
+
 
 void update_jump()
 {
     Sprite test = golem;
     int idx;
 
-    if (jump)
+    if (jump) 
     {
-        
         test.y = golem.y + jump_speed;
 
-        
         idx = collision_idx(&test);
 
         if (idx != -1)
         {
-        
-           if (jump_speed < 0)
-{
-    // Landing on top of tile
-    golem.y = tiles[idx].y + tile_height;
-    jump = 0;
-    jump_speed = 0;
-    activity(1); 
-}
-else
-{
-    // Hitting head on tile from below (ceiling)
-    golem.y = tiles[idx].y - golem_height;
-    jump_speed = 0; // Stop upward movement
-}
-
+            if (jump_speed < 0) 
+            {
+                golem.y = tiles[idx].y + tile_height; 
+                jump = 0;
+                jump_speed = 0;
+                activity(1); 
+            }
+            else 
+            {
+                golem.y = tiles[idx].y - golem_height; 
+                jump_speed = 0; 
+            }
         }
         else
         {
-           
             golem.y += jump_speed;
-            jump_speed -= gravity;
+            jump_speed -= gravity; 
         }
-
-       
         if (direction == 1 && golem.x < 350)
         {
             golem.x += golemSpeed;
-            activity(2);
         }
         else if (direction == 1 && golem.x >= 350)
         {
-            speed = -golemSpeed;
+            speed = -golemSpeed; 
         }
         else if (direction == -1)
         {
             golem.x -= golemSpeed;
-            activity(2);
         }
+
+        activity(2); 
     }
     else
     {
-        // When not jumping, ensure grounded
         test.y = golem.y - 1;
         idx = collision_idx(&test);
-        if (idx == -1)
+
+        if (idx == -1) 
         {
-            // No ground underfoot, fall
             jump = 1;
-            jump_speed = -1;
+            jump_speed = -1; 
         }
     }
-    // Check for coin collection (always check, regardless of jump)
-for (int i = 0; i < tile_idx; i++)
-{
-    if (tile_type[i] == 'o') // only if tile is coin
+
+    for (int i = 0; i < tile_idx; i++)
     {
-        Sprite coin_test = tiles[i];
-        if (iCheckCollision(&golem, &coin_test))
+        if (tile_type[i] == 'o')
         {
-            tile_type[i] = '_';               // mark as collected
-            iSetSpritePosition(&tiles[i], -100, -100); // move out of view
-            score += 10;                      // increase score
-            // Optional: play coin sound
+            if (iCheckCollision(&golem, &tiles[i]))
+            {
+                tile_type[i] = '_'; 
+                // iSetSpritePosition(&tiles[i], -100, -100); 
+                score += 10;
+            }
         }
     }
-}
 
-// Check flag collision
-if (!levelComplete && iCheckCollision(&golem, &flag))
-{
-    levelComplete = true;
-    printf("Level Complete!\n");
-
-    // Optional: go to menu or next level
-    gameState = LEVEL_SELECT;
-}
-
-    
-   
-
-
+    if (!levelComplete && iCheckCollision(&golem, &flag))
+    {
+        levelComplete = true;
+        printf("Level Complete!\n");
+        gameState = LEVEL_SELECT;
+    }
 }
 
 
@@ -383,7 +438,7 @@ void iSpecialKeyboard(unsigned char key, int state)
     case GLUT_KEY_DOWN:
         iDecreaseVolume(bgSoundIdx, 5);
         break;
-    
+
     default:
         break;
     }
@@ -402,8 +457,6 @@ void iDraw()
     else if (gameState == MENU)
     {
         iShowImage(0, 0, "Game Project Pic/2nd cover003.png");
-
-      
     }
 
     else if (gameState == HELP)
@@ -421,6 +474,7 @@ void iDraw()
         iText(100, 250, "4. Avoid obstacles to survive");
         iText(100, 220, "5. Press 'R' to restart the game after Game Over");
         iText(100, 190, "6. Press 'E' to exit the game");
+
         // Back Button
         iSetColor(100, 100, 100);
         iFilledRectangle(230, 20, 100, 35);
@@ -438,23 +492,22 @@ void iDraw()
     {
         iClear();
         iShowLoadedImage(0, 0, &bg[currentLevel]);
-       
+
         iShowSprite(&golem);
 
         if (direction == 1 && golem.x >= 350)
-{
-    iWrapImage(&bg[currentLevel], bgScrollX);
-}
-else
-{
-    iWrapImage(&bg[currentLevel], 0);
-}
+        {
+            iWrapImage(&bg[currentLevel], bgScrollX);
+        }
+        else
+        {
+            iWrapImage(&bg[currentLevel], 0);
+        }
 
-        
         char scoreStr[50];
-    sprintf(scoreStr, "Score: %d", score);
-   iSetColor(255, 255, 255);
-    iText(20, 460, scoreStr, GLUT_BITMAP_HELVETICA_18);
+        sprintf(scoreStr, "Score: %d", score);
+        iSetColor(255, 255, 255);
+        iText(20, 460, scoreStr, GLUT_BITMAP_HELVETICA_18);
 
         iSetColor(100, 100, 100);
         iFilledRectangle(740, 450, 50, 30);
@@ -479,7 +532,7 @@ else
     else if (gameState == PAUSE_MENU)
     {
         iClear();
-        iShowImage(0,0,"assets/GameBG/Pause002.png");
+        iShowImage(0, 0, "assets/GameBG/Pause002.png");
     }
 }
 
@@ -519,7 +572,7 @@ void iMouse(int button, int state, int mx, int my)
 
         else if (gameState == MENU)
         {
-            
+
             // New Game
             if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
             {
@@ -569,14 +622,12 @@ void iMouse(int button, int state, int mx, int my)
                 animation = -1;
                 activity(0);
 
-                
-               // Reset scroll BEFORE changing tile positions
-for (int i = 0; i < tile_idx; i++)
-{
-    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-}
-scroll_x = 0;
-
+                // Reset scroll BEFORE changing tile positions
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
+                }
+                scroll_x = 0;
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -598,14 +649,12 @@ scroll_x = 0;
                 activity(0);
 
                 // Reset camera
-               // Reset scroll BEFORE changing tile positions
-for (int i = 0; i < tile_idx; i++)
-{
-    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-}
-scroll_x = 0;
-
-
+                // Reset scroll BEFORE changing tile positions
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
+                }
+                scroll_x = 0;
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -627,13 +676,12 @@ scroll_x = 0;
                 activity(0);
 
                 // Reset camera
-               // Reset scroll BEFORE changing tile positions
-for (int i = 0; i < tile_idx; i++)
-{
-    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-}
-scroll_x = 0;
-
+                // Reset scroll BEFORE changing tile positions
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
+                }
+                scroll_x = 0;
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -673,7 +721,6 @@ scroll_x = 0;
                 currentLevel = 1;
                 loadLevelFromFile(currentLevel);
 
-
                 golem.x = 70;
                 golem.y = GROUND;
                 direction = 0;
@@ -685,13 +732,11 @@ scroll_x = 0;
 
                 // Reset camera
                 // Reset scroll BEFORE changing tile positions
-for (int i = 0; i < tile_idx; i++)
-{
-    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
-}
-scroll_x = 0;
-
-
+                for (int i = 0; i < tile_idx; i++)
+                {
+                    iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
+                }
+                scroll_x = 0;
 
                 gameOver = false;
                 gameStartTime = time(NULL);
@@ -759,7 +804,6 @@ void iKeyboard(unsigned char key, int state)
     {
         if (key == 'r' || key == 'R')
         {
-            // bgX=0;
             gameOver = false;
             pic_x = 320;
             pic_y = 90;
@@ -767,7 +811,7 @@ void iKeyboard(unsigned char key, int state)
         }
         else if (key == 'p' || key == 'P')
         {
-            isPaused = !isPaused; // toggle pause
+            isPaused = !isPaused;
         }
         else if (key == 'e' || key == 'E')
         {
@@ -796,18 +840,16 @@ void iKeyboard(unsigned char key, int state)
         break;
     }
     if (key == '+') // faster
-{
-    if (golemSpeed < 15)
-        golemSpeed++;
+    {
+        if (golemSpeed < 15)
+            golemSpeed++;
+    }
+    else if (key == '-') // slower
+    {
+        if (golemSpeed > 1)
+            golemSpeed--;
+    }
 }
-else if (key == '-') // slower
-{
-    if (golemSpeed > 1)
-        golemSpeed--;
-}
-
-}
-
 
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
@@ -849,11 +891,11 @@ void iAnim()
         if (idx == -1)
         {
             // Prevent golem from going beyond last brick + flag
-if (golem.x + scroll_x >= lastBrickX + tile_width + 50)
-{
-    direction = 0;
-    return;
-}
+            if (golem.x + scroll_x >= lastBrickX + tile_width + 50)
+            {
+                direction = 0;
+                return;
+            }
 
             if (golem.x > 350)
             {
@@ -893,13 +935,13 @@ void animate_tile()
 
 }
     */
-   
-    void animate_tile()
+
+void animate_tile()
 {
     if (direction == 1 && golem.x >= 350)
     {
         // Stop scrolling when last brick is visible on screen
-      if (lastBrickX + tile_width - scroll_x <= 800)
+        if (lastBrickX + tile_width - scroll_x <= 800)
 
         {
             speed = 0;
@@ -913,18 +955,16 @@ void animate_tile()
             tiles[i].x -= golemSpeed;
         }
 
-        flag.x -= golemSpeed; // move flag along with tiles
+        flag.x -= golemSpeed;
 
         bgScrollX += golemSpeed / 4;
     }
 }
 
-
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
     loadResources();
-    // place your own initialization codes here.
     pic_x = 66, pic_y = 122;
 
     load_bg();
@@ -935,7 +975,7 @@ int main(int argc, char *argv[])
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
     iOpenWindow(800, 500, "Super Mario");
-  //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
+    //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
     return 0;
-}  
+}
