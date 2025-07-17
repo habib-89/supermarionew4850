@@ -301,7 +301,8 @@ int collision_idx(Sprite *s)
 
 void update_jump()
 {
-    if (gameState != GAME ) return;
+    if (gameState != GAME)
+        return;
     Sprite test = golem;
     int idx;
 
@@ -612,9 +613,7 @@ void iDraw()
     else if (gameState == LEVEL_COMPLETE)
     {
         iClear();
-         iShowImage(0, 0, "assets/GameBG/Level Complete001.png");
-
-        
+        iShowImage(0, 0, "assets/GameBG/Level Complete001.png");
     }
 }
 void resetTilePositionsForNewGame()
@@ -665,7 +664,7 @@ void iMouse(int button, int state, int mx, int my)
             // New Game
             if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
             {
-                gameState = LEVEL_SELECT; 
+                gameState = LEVEL_SELECT;
             }
             // Help
             else if (mx >= 208 && mx <= 596 && my >= 114 && my <= 165)
@@ -706,6 +705,7 @@ void iMouse(int button, int state, int mx, int my)
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
                 currentLevel = 3;
+<<<<<<< Updated upstream
                 startLevel(currentLevel);
             }
         }
@@ -748,6 +748,91 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (gameState == LEVEL_COMPLETE)
         {
+=======
+                startLevel(currentLevel); // ✅ use helper
+            }
+        }
+        // else if (gameState == GAME_OVER_SCREEN)
+        // {
+        //     // Retry Button
+        //     if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
+        //     {
+        //         life = 3;
+        //         startLevel(currentLevel);
+        //         gameState = GAME;
+        //     }
+
+        //     // Menu Button
+        //     else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
+        //     {
+        //         gameState = MENU;
+        //     }
+        // }
+    }
+    else if (gameState == GAME_OVER_SCREEN)
+    {
+        // Retry Button
+        if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
+        {
+            life = 3;
+            startLevel(currentLevel);
+            gameState = GAME;
+        }
+        // Menu Button
+        else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
+        {
+            gameState = MENU;
+        }
+
+        else if (gameState == HELP)
+        {
+            // Back button
+            if (mx >= 230 && mx <= 330 && my >= 20 && my <= 55)
+            {
+                gameState = MENU;
+            }
+        }
+        else if (gameState == GAME)
+        {
+            // If pause button clicked
+            if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
+            {
+                gameState = PAUSE_MENU;
+                isPaused = true;
+            }
+        }
+        else if (gameState == PAUSE_MENU)
+        {
+            // Resume
+            if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
+            {
+                gameState = GAME;
+                isPaused = false;
+            }
+            // New Game
+            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
+            {
+                currentLevel = 1;
+                startLevel(currentLevel); // ✅ use helper
+            }
+
+            // Settings (optional)
+            else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
+            {
+                // Just a placeholder for now
+                printf("Settings clicked\n");
+            }
+            // Main Menu
+            else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
+            {
+                gameState = MENU;
+                isPaused = false;
+            }
+        }
+        else if (gameState == LEVEL_COMPLETE)
+        {
+            // Next Level
+>>>>>>> Stashed changes
             if (mx >= 127 && mx <= 356 && my >= 68 && my <= 138)
             {
                 if (currentLevel < maxLevel)
@@ -756,15 +841,24 @@ void iMouse(int button, int state, int mx, int my)
                     startLevel(currentLevel);
                 }
             }
+<<<<<<< Updated upstream
+=======
+
+            // Main Menu
+>>>>>>> Stashed changes
             else if (mx >= 418 && mx <= 608 && my >= 68 && my <= 138)
             {
                 gameState = MENU;
             }
         }
+<<<<<<< Updated upstream
 
         
 
         // Debug mouse position
+=======
+        // For debug (optional)
+>>>>>>> Stashed changes
         printf(" %d %d\n", mx, my);
     }
 }
@@ -870,8 +964,9 @@ GLUT_KEY_INSERT */
 
 void iAnim()
 {
-    
-    if (gameState != GAME ) return;
+
+    if (gameState != GAME)
+        return;
     int idx;
 
     if (dead)
@@ -955,8 +1050,9 @@ void iAnim()
 
 void animate_tile()
 {
-    
-    if (gameState != GAME ) return;
+
+    if (gameState != GAME)
+        return;
     if (direction == 1 && golem.x >= 350)
     {
         // Stop scrolling when last brick is visible on screen
