@@ -9,7 +9,8 @@ using namespace std;
 #define FRONT_PAGE -1
 #define HELP 3
 #define LEVEL_SELECT 4
-#define MAP_WIDTH 250
+// #define MAP_WIDTH 250
+#define MAP_WIDTH 200
 #define MAP_HEIGHT 17
 #define GROUND 122
 #define PAUSE_MENU 20
@@ -35,7 +36,7 @@ Image bg[4];
 Image golem_idle[2];
 Image golem_run_frames[7];
 Image golem_jump_frames[11];
-Image tile_set[2];
+Image tile_set[3];
 Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
 
@@ -54,7 +55,7 @@ char tile_type[MAP_HEIGHT * MAP_WIDTH];
 int gameState = FRONT_PAGE;
 int gameStartTime = 0;
 
-float bgScrollX = .5;
+int bgScrollX = 1;
 
 int tile_idx = 0;
 int scroll_x = 0;
@@ -74,13 +75,12 @@ Sprite flag;
 int lastBrickX = 0;
 bool levelComplete = false;
 
-void loadLevelFromFile(int level);  // declare existing function
-void activity(int index);           // declare existing function
+void loadLevelFromFile(int level);  
+void activity(int index);           
 
 
 void load_bg()
 {
-    // Load backgrounds for 3 levels   Level1BG.png
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
     iLoadImage(&bg[2], "Game Project Pic/Level2BG.jpg");
     iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
@@ -135,7 +135,7 @@ void loadLevelFromFile(int level)
         {
             fscanf(fp, "%c", &ch);
             if (ch == '\n' || ch == '\r')
-                continue; // skip line breaks
+                continue; 
             tileMap[i][j] = ch;
             j++;
         }
@@ -145,6 +145,7 @@ void loadLevelFromFile(int level)
     // Load tiles
     iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
     iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
+    iLoadImage(&tile_set[2], "assets/Level1image/Spikes.png");  // spikes
 
     Image flagImg;
     iLoadImage(&flagImg, "assets/GameBG/Win Flag002.png");
@@ -184,6 +185,15 @@ void loadLevelFromFile(int level)
                 tile_idx++;
                 tile_x += tile_width;
             }
+            else if(current == 'x')
+            {
+                iInitSprite(&tiles[tile_idx]);
+                iChangeSpriteFrames(&tiles[tile_idx], &tile_set[2], 1);
+                iSetSpritePosition(&tiles[tile_idx], tile_x, tile_y);
+                tile_type[tile_idx] = 'x';
+                tile_idx++;
+                tile_x += tile_width;
+            }
             else if (current == 'F')
             {
                 iInitSprite(&flag);
@@ -191,6 +201,7 @@ void loadLevelFromFile(int level)
                 iSetSpritePosition(&flag, tile_x, tile_y);
                 tile_x += tile_width;
             }
+
             else if (current == '_')
             {
                 tile_x += tile_width;
@@ -259,86 +270,6 @@ int collision_idx(Sprite *s)
     return -1;
 }
 
-// void update_jump()
-// {
-//     Sprite test = golem;
-//     int idx;
-
-//     if (jump)
-//     {
-
-//         test.y = golem.y + jump_speed;
-
-//         idx = collision_idx(&test);
-
-//         if (idx != -1)
-//         {
-
-//             if (jump_speed < 0)
-//             {
-//                 golem.y = tiles[idx].y + tile_height;
-//                 jump = 0;
-//                 jump_speed = 0;
-//                 activity(1);
-//             }
-//             else
-//             {
-//                 golem.y = tiles[idx].y - golem_height;
-//                 jump_speed = 0;
-//             }
-//         }
-//         else
-//         {
-
-//             golem.y += jump_speed;
-//             jump_speed -= gravity;
-//         }
-
-//         if (direction == 1 && golem.x < 350)
-//         {
-//             golem.x += golemSpeed;
-//             activity(2);
-//         }
-//         else if (direction == 1 && golem.x >= 350)
-//         {
-//             speed = -golemSpeed;
-//         }
-//         else if (direction == -1)
-//         {
-//             golem.x -= golemSpeed;
-//             activity(2);
-//         }
-//     }
-//     else
-//     {
-//         test.y = golem.y - 1;
-//         idx = collision_idx(&test);
-//         if (idx == -1)
-//         {
-//             jump = 1;
-//             jump_speed = -1;
-//         }
-//     }
-//     for (int i = 0; i < tile_idx; i++)
-//     {
-//         if (tile_type[i] == 'o')
-//         {
-//             Sprite coin_test = tiles[i];
-//             if (iCheckCollision(&golem, &coin_test))
-//             {
-//                 tile_type[i] = '_';
-//                 // iSetSpritePosition(&tiles[i], -100, -100);
-//                 score += 10;
-//             }
-//         }
-//     }
-//     if (!levelComplete && iCheckCollision(&golem, &flag))
-//     {
-//         levelComplete = true;
-//         printf("Level Complete!\n");
-//         gameState = LEVEL_SELECT;
-//     }
-// }
 
 
 void update_jump()
@@ -349,7 +280,6 @@ void update_jump()
     if (jump)
     {
         test.y = golem.y + jump_speed;
-
         idx = collision_idx(&test);
 
         if (idx != -1)
@@ -372,6 +302,7 @@ void update_jump()
             golem.y += jump_speed;
             jump_speed -= gravity;
         }
+
         if (direction == 1 && golem.x < 350)
         {
             golem.x += golemSpeed;
@@ -385,49 +316,26 @@ void update_jump()
             golem.x -= golemSpeed;
         }
 
-        activity(2); // jumping animation
+        activity(2); 
     }
     else
     {
-        // Check if golem is falling off a ledge
         test.y = golem.y - 1;
         idx = collision_idx(&test);
 
-        if (idx == -1)
+        if (idx == -1) 
         {
             jump = 1;
             jump_speed = -1;
+            activity(2); 
         }
-    }
-    // Check for coin collection (always check, regardless of jump)
-    for (int i = 0; i < tile_idx; i++)
-    {
-        if (tile_type[i] == 'o') // only if tile is coin
+        else
         {
-            Sprite coin_test = tiles[i];
-            if (iCheckCollision(&golem, &coin_test))
-            {
-                tile_type[i] = '_';               // mark as collected
-                iSetSpritePosition(&tiles[i], -100, -100); // move out of view
-                score += 10;                      // increase score
-                // Optional: play coin sound
-            }
+            golem.y = tiles[idx].y + tile_height;
         }
     }
 
-// Check flag collision
-    if (!levelComplete && iCheckCollision(&golem, &flag))
-    {
-        levelComplete = true;
-        printf("Level Complete!\n");
-
-        // Optional: go to menu or next level
-        gameState = LEVEL_COMPLETE;
-    }
-
-
-
-
+    //coin
 
     for (int i = 0; i < tile_idx; i++)
     {
@@ -435,15 +343,25 @@ void update_jump()
         {
             if (iCheckCollision(&golem, &tiles[i]))
             {
-                tile_type[i] = '_'; // mark coin as collected
-                iSetSpritePosition(&tiles[i], -100, -100); // hide coin
+                tile_type[i] = '_';
+                iSetSpritePosition(&tiles[i], -100, -100);
                 score += 10;
-                // Optional: play coin sound
+            }
+        }
+    }
+    // spike
+    for (int i = 0; i < tile_idx; i++)
+    {
+        if (tile_type[i] == 'x') 
+        {
+            if (iCheckCollision(&golem, &tiles[i]))
+            {
+                gameOver = true;
             }
         }
     }
 
-    // Flag collision (level complete)
+    // Flag collision 
     if (!levelComplete && iCheckCollision(&golem, &flag))
     {
         levelComplete = true;
@@ -590,7 +508,7 @@ void iDraw()
             }
         }
 
-        // ✅ Show the flag sprite
+        // Show the flag sprite
         iShowSprite(&flag);
     }
     else if (gameState == PAUSE_MENU)
