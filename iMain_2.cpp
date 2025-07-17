@@ -35,7 +35,7 @@ int tile_x = 0, tile_y = ground;
 int tile_width = 30, tile_height = 30;
 
 Image bg[4];
-Image golem_idle[2];
+Image golem_idle[5];
 Image golem_run_frames[7];
 Image golem_jump_frames[11];
 Image tile_set[3];
@@ -225,7 +225,7 @@ void loadLevelFromFile(int level)
 
 void loadResources()
 {
-    iLoadFramesFromFolder(golem_idle, "Game Project Pic/walk");
+    iLoadFramesFromFolder(golem_idle, "player/idle");
     iLoadFramesFromFolder(golem_run_frames, "Game Project Pic/run");
     iLoadFramesFromFolder(golem_jump_frames, "Game Project Pic/jump");
     iInitSprite(&golem);
@@ -300,6 +300,7 @@ void update_jump()
 
         if (idx != -1)
         {
+             
             if (jump_speed < 0) 
             {
                 golem.y = tiles[idx].y + tile_height; 
