@@ -612,19 +612,9 @@ void iDraw()
     else if (gameState == LEVEL_COMPLETE)
     {
         iClear();
-        // iShowImage(0, 0, "assets/GameBG/LevelComplete001.png");
+         iShowImage(0, 0, "assets/GameBG/Level Complete001.png");
 
-        iSetColor(255, 255, 255);
-        iText(300, 300, "Level Complete!", GLUT_BITMAP_TIMES_ROMAN_24);
-
-        // Draw buttons
-        iSetColor(100, 100, 100);
-        iFilledRectangle(250, 180, 300, 50); // Next Level
-        iFilledRectangle(250, 100, 300, 50); // Menu
-
-        iSetColor(255, 255, 255);
-        iText(340, 200, "Next Level");
-        iText(360, 120, "Main Menu");
+        
     }
 }
 void resetTilePositionsForNewGame()
@@ -755,12 +745,7 @@ void iMouse(int button, int state, int mx, int my)
             gameState = GAME;
         }
 
-        // Menu Button
-        else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
-        {
-            gameState = MENU;
-        }
-    }
+    
 
     else if (gameState == HELP)
     {
@@ -810,23 +795,24 @@ void iMouse(int button, int state, int mx, int my)
     else if (gameState == LEVEL_COMPLETE)
     {
         // Next Level
-        if (mx >= 250 && mx <= 550 && my >= 180 && my <= 230)
+        if (mx >= 127 && mx <= 356 && my >= 68 && my <= 138)
         {
             if (currentLevel < maxLevel)
             {
                 currentLevel++;
-                startLevel(currentLevel); // ✅ use helper
+                startLevel(currentLevel);
             }
         }
 
         // Main Menu
-        else if (mx >= 250 && mx <= 550 && my >= 100 && my <= 150)
+        else if (mx >= 418 && mx <= 608 && my >= 68 && my <= 138)
         {
             gameState = MENU;
         }
     }
     // For debug (optional)
     printf(" %d %d\n", mx, my);
+}
 }
 
 /*
