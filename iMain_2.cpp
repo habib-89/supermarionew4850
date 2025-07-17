@@ -569,23 +569,8 @@ void iDraw()
     }
     else if (gameState == GAME_OVER_SCREEN)
 {
-    iSetColor(0, 0, 0);
-    iFilledRectangle(0, 0, 960, 540); // Full black background
-
-    iSetColor(255, 0, 0);
-    iText(300, 360, "GAME OVER", GLUT_BITMAP_TIMES_ROMAN_24);
-
-    // Retry Button
-    iSetColor(200, 200, 200);
-    iFilledRectangle(280, 270, 200, 50);
-    iSetColor(0, 0, 0);
-    iText(350, 290, "Retry", GLUT_BITMAP_HELVETICA_18);
-
-    // Menu Button
-    iSetColor(200, 200, 200);
-    iFilledRectangle(280, 200, 200, 50);
-    iSetColor(0, 0, 0);
-    iText(335, 220, "Main Menu", GLUT_BITMAP_HELVETICA_18);
+    iClear();
+    iShowImage(0,0,"assets/GameBG/Gameoverbg001.png");
 }
 
     else if (gameState == LEVEL_COMPLETE)
@@ -711,7 +696,7 @@ void iMouse(int button, int state, int mx, int my)
 else if (gameState == GAME_OVER_SCREEN)
 {
     // Retry Button
-    if (mx >= 380 && mx <= 580 && my >= 270 && my <= 320)
+    if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
     {
         life = 3;
         startLevel(currentLevel);
@@ -719,7 +704,7 @@ else if (gameState == GAME_OVER_SCREEN)
     }
 
     // Menu Button
-    else if (mx >= 380 && mx <= 580 && my >= 200 && my <= 250)
+    else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
     {
         gameState = MENU;
     }
