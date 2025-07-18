@@ -45,7 +45,7 @@ Sprite golem;
 int speed = 0;
 int golemSpeed = 6;
 int golem_running = 0;
-int animation = -1; // 0 idle, 1 run, 2 jump
+int animation = -1; 
 bool going_right = true;
 bool gameOver = false;
 bool isPaused = false;
@@ -79,13 +79,20 @@ int lastBrickX = 0;
 bool levelComplete = false;
 
 Image heart_full, heart_empty;
-int life = 3; // Start with 3 lives
+int life = 3; 
 bool hurt = false;
 int hurtTimer = 0;
 bool dead = false;
 int deadTimer = 0;
 #define MAX_HURT_TIMER 50
 #define MAX_DEAD_TIMER 50
+
+char playerName[100] = "";
+char highScorer[100] = "None";
+int highScore = 0;
+bool enteringName = false;
+int nameCharIdx = 0;
+
 
 void loadLevelFromFile(int level);
 void activity(int index);
@@ -134,6 +141,32 @@ void startLevel(int level)
     gameState = GAME;
     isPaused = false;
 }
+
+void loadHighScore()
+{
+    FILE *fp = fopen("highscore.txt", "r");
+    if (fp != NULL)
+    {
+        fscanf(fp, "%s %d", highScorer, &highScore);
+        fclose(fp);
+    }
+    else
+    {
+        strcpy(highScorer, "None");
+        highScore = 0;
+    }
+}
+
+void saveHighScore()
+{
+    FILE *fp = fopen("highscore.txt", "w");
+    if (fp != NULL)
+    {
+        fprintf(fp, "%s %d\n", playerName, score);
+        fclose(fp);
+    }
+}
+
 
 void loadLevelFromFile(int level)
 {
@@ -445,14 +478,18 @@ void update_jump()
             gameOver = true;
             direction = 0;
             gameState = GAME_OVER_SCREEN;
+            if (score > highScore)
+{
+    enteringName = true;
+    nameCharIdx = 0;
+    playerName[0] = '\0';
+}
+
         }
-        // gameOver = true;
-        // direction = 0;
-        // gameState = GAME_OVER_SCREEN; // <-- NEW!
     }
 }
 
-void iSpecialKeyboard(unsigned char key, int state)
+void iSpecialKeyboard(unsigned char key,int state)
 {
     if (gameState == GAME)
     {
@@ -608,6 +645,21 @@ void iDraw()
     {
         iClear();
         iShowImage(0, 0, "assets/GameBG/Gameoverbg001.png");
+        iSetColor(255, 255, 255);
+    char msg[200];
+    sprintf(msg, "Your Score: %d", score);
+    iText(300, 350, msg, GLUT_BITMAP_TIMES_ROMAN_24);
+
+    sprintf(msg, "High Score: %d by %s", highScore, highScorer);
+    iText(250, 310, msg, GLUT_BITMAP_TIMES_ROMAN_24);
+
+    if (enteringName)
+    {
+        iSetColor(255, 255, 0);
+        iText(220, 260, "New High Score! Enter your name:", GLUT_BITMAP_TIMES_ROMAN_24);
+        iText(300, 230, playerName, GLUT_BITMAP_HELVETICA_18);
+    }
+
     }
 
     else if (gameState == LEVEL_COMPLETE)
@@ -804,79 +856,86 @@ key- holds the ASCII value of the key pressed.
 */
 void iKeyboard(unsigned char key, int state)
 {
+    // --------- NAME ENTRY MODE ---------
+    if (enteringName)
+    {
+        // Process input only on key press (GLUT_DOWN)
+        if (state == GLUT_DOWN)
+        {
+            if (key == '\b') // Backspace
+            {
+                if (nameCharIdx > 0)
+                {
+                    nameCharIdx--;
+                    playerName[nameCharIdx] = '\0';
+                }
+            }
+            else if (key == '\r' || key == 13) // Enter key
+            {
+                enteringName = false;
+                saveHighScore();
+                gameState = GAME_OVER_SCREEN;
+            }
+            else if (key >= 32 && key <= 126 && nameCharIdx < 20)
+            {
+                playerName[nameCharIdx++] = key;
+                playerName[nameCharIdx] = '\0';
+            }
+        }
+        return; // ✅ Prevent further processing
+    }
+
+    // --------- FRONT PAGE ---------
     if (gameState == FRONT_PAGE)
     {
-        if (key == 13) // Enter
+        if (key == 13 && state == GLUT_DOWN) // Enter key
         {
             gameState = MENU;
         }
     }
 
-    if (gameState == MENU)
+    // --------- MENU ---------
+    else if (gameState == MENU)
     {
-        /*
-        if (key == 's' || key == 'S')
-        {
-            gameState = GAME;
-            gameOver = false;
-            gameStartTime = time(NULL);
-        }
-            */
-        if (key == 'e' || key == 'E')
+        if ((key == 'e' || key == 'E') && state == GLUT_DOWN)
         {
             exit(0);
         }
     }
+
+    // --------- GAME STATE ---------
     else if (gameState == GAME)
     {
-        if (key == 'r' || key == 'R')
+        if ((key == 'r' || key == 'R') && state == GLUT_DOWN)
         {
             gameOver = false;
             life = 3;
-            startLevel(currentLevel); // Restart current level with full life
+            startLevel(currentLevel);
         }
-
-        else if (key == 'p' || key == 'P')
+        else if ((key == 'p' || key == 'P') && state == GLUT_DOWN)
         {
             isPaused = !isPaused;
         }
-        else if (key == 'e' || key == 'E')
+        else if ((key == 'e' || key == 'E') && state == GLUT_DOWN)
         {
             exit(0);
         }
-        else if (key == 'm' || key == 'M')
+        else if ((key == 'm' || key == 'M') && state == GLUT_DOWN)
         {
             saveGameState();
             gameState = MENU;
         }
     }
 
-    switch (key)
+    // --------- SOUND CONTROLS ---------
+    if (state == GLUT_DOWN)
     {
-    case 'r':
-        iResumeSound(bgSoundIdx);
-        break;
-    case 'p':
-        iPauseSound(bgSoundIdx);
-        break;
-    case 'x':
-        iStopSound(bgSoundIdx);
-        break;
-
-    default:
-        break;
+        if (key == 'r') iResumeSound(bgSoundIdx);
+        else if (key == 'p') iPauseSound(bgSoundIdx);
+        else if (key == 'x') iStopSound(bgSoundIdx);
     }
-    // if (key == '+') // faster
-    // {
-    //     if (golemSpeed < 15)
-    //         golemSpeed++;
-    // }
-    // else if (key == '-') // slower
-    // {
-    //     if (golemSpeed > 1)
-    //         golemSpeed--;
-    // }
 }
+
 
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
@@ -1006,6 +1065,7 @@ int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
     loadResources();
+    loadHighScore();
     pic_x = 66, pic_y = 122;
 
     load_bg();
@@ -1014,11 +1074,11 @@ int main(int argc, char *argv[])
     iSetTimer(30, update_jump);
 
     iInitializeSound();
-    bgSoundIdx = iPlaySound("assets/sounds/background.wav", true, 50);
+    bgSoundIdx = iPlaySound("assets/sounds/BGSound001.wav", true, 50);
     // gameOverSoundIdx = iPlaySound("assets/sounds/Game over sound.mp3",true,30);
 
     iOpenWindow(800, 500, "Super Mario");
     //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
 
     return 0;
-}  
+}
