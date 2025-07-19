@@ -9,7 +9,6 @@ using namespace std;
 #define FRONT_PAGE -1
 #define HELP 3
 #define LEVEL_SELECT 4
-// #define MAP_WIDTH 250
 #define MAP_WIDTH 200
 #define MAP_HEIGHT 17
 #define GROUND 122
@@ -45,7 +44,7 @@ Sprite golem;
 int speed = 0;
 int golemSpeed = 6;
 int golem_running = 0;
-int animation = -1; 
+int animation = -1;
 bool going_right = true;
 bool gameOver = false;
 bool isPaused = false;
@@ -79,7 +78,7 @@ int lastBrickX = 0;
 bool levelComplete = false;
 
 Image heart_full, heart_empty;
-int life = 3; 
+int life = 3;
 bool hurt = false;
 int hurtTimer = 0;
 bool dead = false;
@@ -92,7 +91,6 @@ char highScorer[100] = "None";
 int highScore = 0;
 bool enteringName = false;
 int nameCharIdx = 0;
-
 
 void loadLevelFromFile(int level);
 void activity(int index);
@@ -166,7 +164,6 @@ void saveHighScore()
         fclose(fp);
     }
 }
-
 
 void loadLevelFromFile(int level)
 {
@@ -349,15 +346,44 @@ void update_jump()
 
             if (jump_speed < 0)
             {
-                golem.y = tiles[idx].y + tile_height;
-                jump = 0;
-                jump_speed = 0;
-                activity(1);
+                if (golem.y +10 > tiles[idx].y + tile_height)
+                {
+                    golem.y = tiles[idx].y + tile_height;
+                    jump = 0;
+                    jump_speed = 0;
+                    activity(1);
+                }
+                else
+                {
+                    if(direction ==  1) {
+                        golem.x -=20;
+                        direction =0;
+                    }
+                    else if(direction == -1) {
+                        golem.x+=20;
+                        direction =0;
+                    }
+                }
             }
             else
             {
-                golem.y = tiles[idx].y - golem_height;
-                jump_speed = 0;
+                if (golem.y + golem_height -10< tiles[idx].y)
+                {
+                    golem.y = tiles[idx].y - golem_height ;
+                    jump_speed = 0;
+                }
+                else
+                {
+                    // direction = 0;
+                    if(direction == 1) {
+                        golem.x -=20;
+                        direction =0 ;
+                    }
+                    else if( direction == -1) {
+                        golem.x+=20;
+                        direction =0;
+                    }
+                }
             }
         }
         else
@@ -383,6 +409,7 @@ void update_jump()
     }
     else
     {
+        // void onground();
         test.y = golem.y - 1;
         idx = collision_idx(&test);
 
@@ -479,17 +506,16 @@ void update_jump()
             direction = 0;
             gameState = GAME_OVER_SCREEN;
             if (score > highScore)
-{
-    enteringName = true;
-    nameCharIdx = 0;
-    playerName[0] = '\0';
-}
-
+            {
+                enteringName = true;
+                nameCharIdx = 0;
+                playerName[0] = '\0';
+            }
         }
     }
 }
 
-void iSpecialKeyboard(unsigned char key,int state)
+void iSpecialKeyboard(unsigned char key, int state)
 {
     if (gameState == GAME)
     {
@@ -646,20 +672,19 @@ void iDraw()
         iClear();
         iShowImage(0, 0, "assets/GameBG/Gameoverbg001.png");
         iSetColor(255, 255, 255);
-    char msg[200];
-    sprintf(msg, "Your Score: %d", score);
-    iText(300, 350, msg, GLUT_BITMAP_TIMES_ROMAN_24);
+        char msg[200];
+        sprintf(msg, "Your Score: %d", score);
+        iText(300, 350, msg, GLUT_BITMAP_TIMES_ROMAN_24);
 
-    sprintf(msg, "High Score: %d by %s", highScore, highScorer);
-    iText(250, 310, msg, GLUT_BITMAP_TIMES_ROMAN_24);
+        sprintf(msg, "High Score: %d by %s", highScore, highScorer);
+        iText(250, 310, msg, GLUT_BITMAP_TIMES_ROMAN_24);
 
-    if (enteringName)
-    {
-        iSetColor(255, 255, 0);
-        iText(220, 260, "New High Score! Enter your name:", GLUT_BITMAP_TIMES_ROMAN_24);
-        iText(300, 230, playerName, GLUT_BITMAP_HELVETICA_18);
-    }
-
+        if (enteringName)
+        {
+            iSetColor(255, 255, 0);
+            iText(220, 260, "New High Score! Enter your name:", GLUT_BITMAP_TIMES_ROMAN_24);
+            iText(300, 230, playerName, GLUT_BITMAP_HELVETICA_18);
+        }
     }
 
     else if (gameState == LEVEL_COMPLETE)
@@ -814,15 +839,15 @@ void iMouse(int button, int state, int mx, int my)
                 gameState = MENU;
             }
         }
-         else if (gameState == GAME_OVER_SCREEN)
-         {
-           //   Retry Button
-             if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
-             {
-                 life = 3;
-                 startLevel(currentLevel);
-                 gameState = GAME;
-             }
+        else if (gameState == GAME_OVER_SCREEN)
+        {
+            //   Retry Button
+            if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
+            {
+                life = 3;
+                startLevel(currentLevel);
+                gameState = GAME;
+            }
 
             // Menu Button
             else if (mx >= 415 && mx <= 608 && my >= 53 && my <= 115)
@@ -830,10 +855,6 @@ void iMouse(int button, int state, int mx, int my)
                 gameState = MENU;
             }
         }
-
-
-
-        
 
         // Debug mouse positio
         // For debug (optional)
@@ -930,12 +951,14 @@ void iKeyboard(unsigned char key, int state)
     // --------- SOUND CONTROLS ---------
     if (state == GLUT_DOWN)
     {
-        if (key == 'r') iResumeSound(bgSoundIdx);
-        else if (key == 'p') iPauseSound(bgSoundIdx);
-        else if (key == 'x') iStopSound(bgSoundIdx);
+        if (key == 'r')
+            iResumeSound(bgSoundIdx);
+        else if (key == 'p')
+            iPauseSound(bgSoundIdx);
+        else if (key == 'x')
+            iStopSound(bgSoundIdx);
     }
 }
-
 
 /*
 function iSpecialKeyboard() is called whenver user hits special keys likefunction
