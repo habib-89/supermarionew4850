@@ -9,17 +9,17 @@ using namespace std;
 #define FRONT_PAGE -1
 #define HELP 3
 #define LEVEL_SELECT 4
-#define MAP_WIDTH 200
-#define MAP_HEIGHT 17
-#define GROUND 122
 #define PAUSE_MENU 20
 #define LEVEL_COMPLETE 5
 #define GAME_OVER_SCREEN 6
 
+#define MAP_WIDTH 200
+#define MAP_HEIGHT 17
+#define GROUND 122
+
 int golem_height = 76;
 int golem_width = 45;
 
-int pic_x, pic_y;
 int golem_idx = 0;
 int jump_idx = 0;
 int jump = 0;
@@ -89,7 +89,8 @@ int deadTimer = 0;
 char playerName[100] = "";
 char highScorer[100] = "None";
 int highScore = 0;
-bool enteringName = false;
+bool enteringNameHigh = false;
+bool enteringNameLow = false;
 int nameCharIdx = 0;
 
 void loadLevelFromFile(int level);
@@ -109,20 +110,22 @@ void startLevel(int level)
     hurtTimer = 0;
     dead = false;
     deadTimer = 0;
-    tile_idx = 0;
+    tile_idx = 0;    // resets the level tiles for the new level.
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++)
     {
-        tile_type[i] = '_';
+        tile_type[i] = '_';  //Clears all previous tile types .
     }
 
-    scroll_x = 0;
+    scroll_x = 0;   //reset scrolling.
+
     loadLevelFromFile(level);
 
     for (int i = 0; i < tile_idx; i++)
     {
         iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
     }
-    iSetSpritePosition(&flag, flag.x + scroll_x, flag.y);
+    iSetSpritePosition(&flag, flag.x + scroll_x, flag.y); //Repositions all tiles and the flag
+                                                          //based on current scroll offset.
 
     golem.x = 70;
     golem.y = GROUND;
@@ -276,8 +279,8 @@ void loadResources()
 
 void saveGameState()
 {
-    prev_pic_x = pic_x;
-    prev_pic_y = pic_y;
+    prev_pic_x = golem.x;
+    prev_pic_y = golem.y;
     prev_jump = jump;
     prev_jumpSpeed = jump_speed;
     prev_gameOver = gameOver;
@@ -289,8 +292,8 @@ void loadGameState()
     if (!hasPreviousGame)
         return;
 
-    pic_x = prev_pic_x;
-    pic_y = prev_pic_y;
+    golem.x = prev_pic_x;
+    golem.y = prev_pic_y;
     jump = prev_jump;
     jump_speed = prev_jumpSpeed;
     gameOver = prev_gameOver;
@@ -467,14 +470,6 @@ void update_jump()
                     frame = 0;
                     deadTimer = 0; // Dead animation
                 }
-                // hurtTimer = 0;
-                // if (life <= 0)
-                // {
-                //     dead = true;
-
-                //     gameOver = true;
-                //     direction = 0;
-                // }
             }
         }
     }
@@ -485,13 +480,13 @@ void update_jump()
         levelComplete = true;
         direction = 0;
         speed = 0;
-        printf("Level Complete!\n");
+       // printf("Level Complete!\n");
         gameState = LEVEL_COMPLETE;
     }
     if (hurt && !dead)
     {
         hurtTimer++;
-        if (hurtTimer > MAX_HURT_TIMER) // About 1 second (adjust as needed)
+        if (hurtTimer > MAX_HURT_TIMER) 
         {
             hurt = false;
             hurtTimer = 0;
@@ -507,7 +502,12 @@ void update_jump()
             gameState = GAME_OVER_SCREEN;
             if (score > highScore)
             {
-                enteringName = true;
+                enteringNameHigh = true;
+                nameCharIdx = 0;
+                playerName[0] = '\0';
+            }
+            else if ( score < highScore){
+                enteringNameLow = true;
                 nameCharIdx = 0;
                 playerName[0] = '\0';
             }
@@ -671,20 +671,28 @@ void iDraw()
     {
         iClear();
         iShowImage(0, 0, "assets/GameBG/Gameoverbg001.png");
-        iSetColor(255, 255, 255);
+        iSetColor(0, 0, 0);
         char msg[200];
         sprintf(msg, "Your Score: %d", score);
-        iText(300, 350, msg, GLUT_BITMAP_TIMES_ROMAN_24);
+        iText(510, 464, msg, GLUT_BITMAP_TIMES_ROMAN_24);
 
         sprintf(msg, "High Score: %d by %s", highScore, highScorer);
-        iText(250, 310, msg, GLUT_BITMAP_TIMES_ROMAN_24);
+        iText(510, 434, msg, GLUT_BITMAP_TIMES_ROMAN_24);
 
-        if (enteringName)
+        if (enteringNameHigh)
         {
             iSetColor(255, 255, 0);
-            iText(220, 260, "New High Score! Enter your name:", GLUT_BITMAP_TIMES_ROMAN_24);
+            iText(220, 260, "New High Score!", GLUT_BITMAP_TIMES_ROMAN_24);
+            iText(220, 230, "Enter your name: ", GLUT_BITMAP_TIMES_ROMAN_24);
             iText(300, 230, playerName, GLUT_BITMAP_HELVETICA_18);
         }
+        if (enteringNameLow)
+        {
+            iSetColor(255, 255, 0);
+            iText(280, 230, "Enter your name:", GLUT_BITMAP_TIMES_ROMAN_24);
+            iText(460, 230, playerName, GLUT_BITMAP_HELVETICA_18);
+        }
+
     }
 
     else if (gameState == LEVEL_COMPLETE)
@@ -878,7 +886,7 @@ key- holds the ASCII value of the key pressed.
 void iKeyboard(unsigned char key, int state)
 {
     // --------- NAME ENTRY MODE ---------
-    if (enteringName)
+    if (enteringNameHigh)
     {
         // Process input only on key press (GLUT_DOWN)
         if (state == GLUT_DOWN)
@@ -893,7 +901,7 @@ void iKeyboard(unsigned char key, int state)
             }
             else if (key == '\r' || key == 13) // Enter key
             {
-                enteringName = false;
+                enteringNameHigh = false;
                 saveHighScore();
                 gameState = GAME_OVER_SCREEN;
             }
@@ -905,6 +913,34 @@ void iKeyboard(unsigned char key, int state)
         }
         return; // ✅ Prevent further processing
     }
+     if (enteringNameLow)
+    {
+        // Process input only on key press (GLUT_DOWN)
+        if (state == GLUT_DOWN)
+        {
+            if (key == '\b') // Backspace
+            {
+                if (nameCharIdx > 0)
+                {
+                    nameCharIdx--;
+                    playerName[nameCharIdx] = '\0';
+                }
+            }
+            else if (key == '\r' || key == 13) // Enter key
+            {
+                enteringNameLow = false;
+               // saveHighScore();
+                gameState = GAME_OVER_SCREEN;
+            }
+            else if (key >= 32 && key <= 126 && nameCharIdx < 20)
+            {
+                playerName[nameCharIdx++] = key;
+                playerName[nameCharIdx] = '\0';
+            }
+        }
+        return; // ✅ Prevent further processing
+    }
+
 
     // --------- FRONT PAGE ---------
     if (gameState == FRONT_PAGE)
@@ -1089,8 +1125,6 @@ int main(int argc, char *argv[])
     glutInit(&argc, argv);
     loadResources();
     loadHighScore();
-    pic_x = 66, pic_y = 122;
-
     load_bg();
     iSetTimer(100, iAnim);
     iSetTimer(19, animate_tile);
