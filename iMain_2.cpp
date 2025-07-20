@@ -32,6 +32,7 @@ int ground = GROUND;
 int direction = 0;
 int tile_x = 0, tile_y = ground;
 int tile_width = 30, tile_height = 30;
+int spike_width = 60, spike_height = 30;
 
 Image bg[4];
 Image golem_idle[5];
@@ -85,6 +86,10 @@ bool hurt = false;
 int hurtTimer = 0;
 bool dead = false;
 int deadTimer = 0;
+bool respawn = false;
+int respawn_timer = 0;
+
+#define MAX_RESPWAN_TIMER 50   
 #define MAX_HURT_TIMER 50
 #define MAX_DEAD_TIMER 50
 
@@ -98,7 +103,6 @@ int nameCharIdx = 0;
 #define MAX_SCORES 5
 char highScorers[MAX_SCORES][100];
 int highScores[MAX_SCORES];
-
 
 void loadLevelFromFile(int level);
 void activity(int index);
@@ -117,13 +121,13 @@ void startLevel(int level)
     hurtTimer = 0;
     dead = false;
     deadTimer = 0;
-    tile_idx = 0;    // resets the level tiles for the new level.
+    tile_idx = 0; // resets the level tiles for the new level.
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++)
     {
-        tile_type[i] = '_';  //Clears all previous tile types .
+        tile_type[i] = '_'; // Clears all previous tile types .
     }
 
-    scroll_x = 0;   //reset scrolling.
+    scroll_x = 0; // reset scrolling.
 
     loadLevelFromFile(level);
 
@@ -131,8 +135,8 @@ void startLevel(int level)
     {
         iSetSpritePosition(&tiles[i], tiles[i].x + scroll_x, tiles[i].y);
     }
-    iSetSpritePosition(&flag, flag.x + scroll_x, flag.y); //Repositions all tiles and the flag
-    //based on current scroll offset.
+    iSetSpritePosition(&flag, flag.x + scroll_x, flag.y); // Repositions all tiles and the flag
+    // based on current scroll offset.
 
     golem.x = 70;
     golem.y = GROUND;
@@ -162,7 +166,6 @@ void loadHighScores()
 
         fclose(fp);
     }
-
 
     for (int j = i; j < MAX_SCORES; j++)
     {
@@ -205,7 +208,6 @@ void saveHighScore(char *playerName, int playerScore)
         fclose(fp);
     }
 }
-
 
 void loadLevelFromFile(int level)
 {
@@ -388,7 +390,7 @@ void update_jump()
 
             if (jump_speed < 0)
             {
-                if (golem.y +10 > tiles[idx].y + tile_height)
+                if (golem.y + 10 > tiles[idx].y + tile_height)
                 {
                     golem.y = tiles[idx].y + tile_height;
                     jump = 0;
@@ -397,37 +399,37 @@ void update_jump()
                 }
                 else
                 {
-                    if(direction ==  1)
+                    if (direction == 1)
                     {
-                        golem.x -=20;
-                        direction =0;
+                        golem.x -= 20;
+                        direction = 0;
                     }
-                    else if(direction == -1)
+                    else if (direction == -1)
                     {
-                        golem.x+=20;
-                        direction =0;
+                        golem.x += 20;
+                        direction = 0;
                     }
                 }
             }
             else
             {
-                if (golem.y + golem_height -10< tiles[idx].y)
+                if (golem.y + golem_height - 10 < tiles[idx].y)
                 {
-                    golem.y = tiles[idx].y - golem_height ;
+                    golem.y = tiles[idx].y - golem_height;
                     jump_speed = 0;
                 }
                 else
                 {
                     // direction = 0;
-                    if(direction == 1)
+                    if (direction == 1)
                     {
-                        golem.x -=20;
-                        direction =0 ;
+                        golem.x -= 20;
+                        direction = 0;
                     }
-                    else if( direction == -1)
+                    else if (direction == -1)
                     {
-                        golem.x+=20;
-                        direction =0;
+                        golem.x += 20;
+                        direction = 0;
                     }
                 }
             }
@@ -499,7 +501,7 @@ void update_jump()
                 direction = 0;
                 speed = 0;
                 if (golem.x < tiles[i].x)
-                    golem.x = tiles[i].x - tile_width * 3;
+                    golem.x = tiles[i].x - tile_width ;
                 else
                     golem.x = tiles[i].x + tile_width;
                 if (life > 0)
@@ -535,6 +537,34 @@ void update_jump()
             hurtTimer = 0;
         }
     }
+
+
+
+    if (golem.y + golem_height < 0)
+    {
+        // life =0 ;
+        // dead =true;
+        direction =0;
+        respawn_timer ++;
+        if(respawn_timer >= MAX_RESPWAN_TIMER){
+            
+            life --;
+            respawn = false;
+            respawn_timer =0;
+            if(life > 0){
+                golem.y = 400;
+                golem.x +=tile_width*6;
+                direction =0 ;
+                // activity(0);
+            }
+            else {
+                dead = true;
+                deadTimer =0;
+                direction =0;
+            }
+        }
+    }
+
     if (dead)
     {
         deadTimer++;
@@ -549,7 +579,7 @@ void update_jump()
                 nameCharIdx = 0;
                 playerName[0] = '\0';
             }
-            else if ( score < highScore)
+            else if (score < highScore)
             {
                 enteringNameLow = true;
                 nameCharIdx = 0;
@@ -633,17 +663,16 @@ void iDraw()
     else if (gameState == SCORE)
     {
         iClear();
-//   iSetColor(255, 255, 255);
+        //   iSetColor(255, 255, 255);
         //  iText(300, 450, "Top 5 High Scores", GLUT_BITMAP_TIMES_ROMAN_24);
         iShowImage(0, 0, "assets/GameBG/scorebg001.png");
-
 
         for (int i = 0; i < MAX_SCORES; i++)
         {
             char line[200];
 
             sprintf(line, "%s - %d", highScorers[i], highScores[i]);
-            iSetColor(0,0,0);
+            iSetColor(0, 0, 0);
             iText(295, 254 - i * 45, line, GLUT_BITMAP_HELVETICA_18);
         }
 
@@ -653,8 +682,6 @@ void iDraw()
         iSetColor(0, 0, 0);
         iText(55, 55, "Back", GLUT_BITMAP_HELVETICA_18);
     }
-
-
 
     else if (gameState == HELP)
     {
@@ -761,7 +788,6 @@ void iDraw()
             iText(280, 230, "Enter your name:", GLUT_BITMAP_TIMES_ROMAN_24);
             iText(460, 230, playerName, GLUT_BITMAP_HELVETICA_18);
         }
-
     }
 
     else if (gameState == LEVEL_COMPLETE)
@@ -825,12 +851,10 @@ void iMouse(int button, int state, int mx, int my)
             {
                 gameState = HELP;
             }
-            //score
+            // score
             else if (mx >= 208 && mx <= 596 && my >= 182 && my <= 235)
             {
                 gameState = SCORE;
-
-
             }
             // Exit
             else if (mx >= 208 && mx <= 596 && my >= 66 && my <= 112)
@@ -1024,7 +1048,6 @@ void iKeyboard(unsigned char key, int state)
         }
         return; // ✅ Prevent further processing
     }
-
 
     // --------- FRONT PAGE ---------
     if (gameState == FRONT_PAGE)
