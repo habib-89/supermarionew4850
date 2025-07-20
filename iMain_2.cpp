@@ -455,10 +455,11 @@ void update_jump()
 
                 direction = 0;
                 speed = 0;
-                if (golem.x < tiles[i].x)
-                    golem.x = tiles[i].x - tile_width * 3;
-                else
-                    golem.x = tiles[i].x + tile_width;
+                if (golem.x +golem_width < tiles[i].x)
+                    golem.x = tiles[i].x - golem_width -10 ;
+                else if(golem.x > tiles[i].x+ tile_width)
+                    golem.x = tiles[i].x + tile_width +10;
+                else if((golem.x+golem_width)/2 )
                 if (life > 0)
                 {
                     activity(3); // Hurt animation
@@ -491,6 +492,11 @@ void update_jump()
             hurt = false;
             hurtTimer = 0;
         }
+    }
+
+    if(golem.y + golem_height< 0) {
+        dead = true;
+        direction =0;
     }
     if (dead)
     {
