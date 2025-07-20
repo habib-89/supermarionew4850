@@ -498,11 +498,10 @@ void update_jump()
 
                 direction = 0;
                 speed = 0;
-                if (golem.x +golem_width < tiles[i].x)
-                    golem.x = tiles[i].x - golem_width -10 ;
-                else if(golem.x > tiles[i].x+ tile_width)
-                    golem.x = tiles[i].x + tile_width +10;
-                else if((golem.x+golem_width)/2 )
+                if (golem.x < tiles[i].x)
+                    golem.x = tiles[i].x - tile_width * 3;
+                else
+                    golem.x = tiles[i].x + tile_width;
                 if (life > 0)
                 {
                     activity(3); // Hurt animation
@@ -535,11 +534,6 @@ void update_jump()
             hurt = false;
             hurtTimer = 0;
         }
-    }
-
-    if(golem.y + golem_height< 0) {
-        dead = true;
-        direction =0;
     }
     if (dead)
     {
@@ -974,13 +968,13 @@ key- holds the ASCII value of the key pressed.
 */
 void iKeyboard(unsigned char key, int state)
 {
-   
+    // --------- NAME ENTRY MODE ---------
     if (enteringNameHigh)
     {
-        
+        // Process input only on key press (GLUT_DOWN)
         if (state == GLUT_DOWN)
         {
-            if (key == '\b') 
+            if (key == '\b') // Backspace
             {
                 if (nameCharIdx > 0)
                 {
@@ -988,10 +982,10 @@ void iKeyboard(unsigned char key, int state)
                     playerName[nameCharIdx] = '\0';
                 }
             }
-            else if (key == '\r' || key == 13) 
+            else if (key == '\r' || key == 13) // Enter key
             {
                 enteringNameHigh = false;
-                saveHighScore(playerName, score); 
+                saveHighScore(playerName, score); //
 
                 gameState = GAME_OVER_SCREEN;
             }
@@ -1001,14 +995,14 @@ void iKeyboard(unsigned char key, int state)
                 playerName[nameCharIdx] = '\0';
             }
         }
-        return; 
+        return; // ✅ Prevent further processing
     }
     if (enteringNameLow)
     {
-        
+        // Process input only on key press (GLUT_DOWN)
         if (state == GLUT_DOWN)
         {
-            if (key == '\b')
+            if (key == '\b') // Backspace
             {
                 if (nameCharIdx > 0)
                 {
@@ -1016,10 +1010,10 @@ void iKeyboard(unsigned char key, int state)
                     playerName[nameCharIdx] = '\0';
                 }
             }
-            else if (key == '\r' || key == 13) 
+            else if (key == '\r' || key == 13) // Enter key
             {
                 enteringNameLow = false;
-             
+                // saveHighScore();
                 gameState = GAME_OVER_SCREEN;
             }
             else if (key >= 32 && key <= 126 && nameCharIdx < 20)
@@ -1028,19 +1022,20 @@ void iKeyboard(unsigned char key, int state)
                 playerName[nameCharIdx] = '\0';
             }
         }
-        return; 
+        return; // ✅ Prevent further processing
     }
 
 
-    
+    // --------- FRONT PAGE ---------
     if (gameState == FRONT_PAGE)
     {
-        if (key == 13 && state == GLUT_DOWN) 
+        if (key == 13 && state == GLUT_DOWN) // Enter key
         {
             gameState = MENU;
         }
     }
 
+    // --------- MENU ---------
     else if (gameState == MENU)
     {
         if ((key == 'e' || key == 'E') && state == GLUT_DOWN)
@@ -1049,6 +1044,7 @@ void iKeyboard(unsigned char key, int state)
         }
     }
 
+    // --------- GAME STATE ---------
     else if (gameState == GAME)
     {
         if ((key == 'r' || key == 'R') && state == GLUT_DOWN)
@@ -1072,7 +1068,7 @@ void iKeyboard(unsigned char key, int state)
         }
     }
 
-
+    // --------- SOUND CONTROLS ---------
     if (state == GLUT_DOWN)
     {
         if (key == 'r')
