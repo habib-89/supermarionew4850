@@ -54,6 +54,7 @@ bool isPaused = false;
 bool touch = false;
 
 int bgSoundIdx = -1;
+// int coinSound, jumpSound;
 char tileMap[MAP_HEIGHT][MAP_WIDTH];
 char tile_type[MAP_HEIGHT * MAP_WIDTH];
 int gameState = FRONT_PAGE;
@@ -103,6 +104,9 @@ int nameCharIdx = 0;
 #define MAX_SCORES 5
 char highScorers[MAX_SCORES][100];
 int highScores[MAX_SCORES];
+
+
+
 
 void loadLevelFromFile(int level);
 void activity(int index);
@@ -484,6 +488,8 @@ void update_jump()
                 tile_type[i] = '_';
                 // iSetSpritePosition(&tiles[i], -100, -100);
                 score += 10;
+              iPlaySound("assets/sounds/Coin.wav", false,50);
+
             }
         }
     }
@@ -1145,6 +1151,8 @@ void iAnim()
     if (jump)
     {
         iAnimateSprite(&golem);
+      // iPlaySound("assets/sounds/jump.wav", false,50);
+
         return;
     }
 
@@ -1237,9 +1245,10 @@ int main(int argc, char *argv[])
     iSetTimer(19, animate_tile);
     iSetTimer(30, update_jump);
 
-    // iInitializeSound();
-    // bgSoundIdx = iPlaySound("assets/sounds/BGSound001.wav", true, 50);
-    // gameOverSoundIdx = iPlaySound("assets/sounds/Game over sound.mp3",true,30);
+     iInitializeSound();
+     bgSoundIdx = iPlaySound("assets/sounds/Platformer Bonus level.wav", true, 50);
+    
+     //gameOverSoundIdx = iPlaySound("assets/sounds/Game over sound.mp3",true,30);
 
     iOpenWindow(800, 500, "Super Mario");
     //  printf("tile_set[0] width = %d, height = %d\n", tile_set[0].width, tile_set[0].height);
