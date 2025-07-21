@@ -114,8 +114,8 @@ void activity(int index);
 void load_bg()
 {
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
-    iLoadImage(&bg[2], "Game Project Pic/Level2BG.jpg");
-    iLoadImage(&bg[3], "Game Project Pic/Level3BG.jpg");
+    iLoadImage(&bg[2], "assets/GameBG/Level2BG.jpg");
+    iLoadImage(&bg[3], "assets/GameBG/Level3BG.jpg");
 }
 void startLevel(int level)
 {
@@ -310,11 +310,11 @@ void loadLevelFromFile(int level)
 
 void loadResources()
 {
-    iLoadFramesFromFolder(golem_idle, "player/idle");
-    iLoadFramesFromFolder(golem_run_frames, "Game Project Pic/run");
-    iLoadFramesFromFolder(golem_jump_frames, "Game Project Pic/jump");
-    iLoadFramesFromFolder(golem_hurt_frames, "player/hurt");
-    iLoadFramesFromFolder(golem_dead_frames, "player/dead");
+    iLoadFramesFromFolder(golem_idle, "assets/idle");
+    iLoadFramesFromFolder(golem_run_frames, "assets/Run");
+    iLoadFramesFromFolder(golem_jump_frames, "assets/Game Project Pic/jump");
+    iLoadFramesFromFolder(golem_hurt_frames, "assets/hurt");
+    iLoadFramesFromFolder(golem_dead_frames, "assets/dead");
     iInitSprite(&golem);
     iChangeSpriteFrames(&golem, golem_idle, 1);
     iSetSpritePosition(&golem, 70, 122);
@@ -680,7 +680,7 @@ void iDraw()
     iClear();
     if (gameState == FRONT_PAGE)
     {
-        iShowImage(0, 0, "Game Project Pic/1st Cover003.bmp");
+        iShowImage(0, 0, "assets/GameBG/1st Cover002.png");
         iSetColor(0, 0, 0);
         iText(10, 10, "Press Enter to Continue or Click Main Menu", GLUT_BITMAP_HELVETICA_18);
         return;
@@ -688,7 +688,7 @@ void iDraw()
 
     else if (gameState == MENU)
     {
-        iShowImage(0, 0, "Game Project Pic/2nd cover003.png");
+        iShowImage(0, 0, "assets/GameBG/2nd cover003.png");
     }
     else if (gameState == SCORE)
     {
@@ -717,7 +717,7 @@ void iDraw()
     {
         iClear();
 
-        iShowImage(0, 0, "Game Project Pic/Help Cover001.png");
+        iShowImage(0, 0, "assets/GameBG/Help Cover001.png");
 
         iSetColor(0, 0, 0);
         iText(300, 450, "HELP", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -739,7 +739,7 @@ void iDraw()
     else if (gameState == LEVEL_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "Game Project Pic/Level BG001.png");
+        iShowImage(0, 0, "assets/GameBG/Level BG001.png");
     }
 
     else if (gameState == GAME)
