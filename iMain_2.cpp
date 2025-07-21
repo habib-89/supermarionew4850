@@ -43,6 +43,7 @@ Image golem_dead_frames[3];
 Image tile_set[3];
 Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
+// Image flagImg;
 
 int speed = 0;
 int golemSpeed = 6;
@@ -116,6 +117,7 @@ void load_bg()
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
     iLoadImage(&bg[2], "assets/GameBG/Level2BG.jpg");
     iLoadImage(&bg[3], "assets/GameBG/Level3BG.jpg");
+ 
 }
 void startLevel(int level)
 {
@@ -204,13 +206,33 @@ void saveHighScore(char *playerName, int playerScore)
 
     if (inserted)
     {
-        FILE *fp = fopen("highscore.txt", "w");
+        FILE *fp = fopen("saves/highscore.txt", "w");
         for (int k = 0; k < MAX_SCORES; k++)
         {
             fprintf(fp, "%s %d\n", highScorers[k], highScores[k]);
         }
         fclose(fp);
     }
+}
+void loadResources()
+{
+    iLoadFramesFromFolder(golem_idle, "assets/idle");
+    iLoadFramesFromFolder(golem_run_frames, "assets/Run");
+    iLoadFramesFromFolder(golem_jump_frames, "assets/Game Project Pic/jump");
+    iLoadFramesFromFolder(golem_hurt_frames, "assets/hurt");
+    iLoadFramesFromFolder(golem_dead_frames, "assets/dead");
+    iInitSprite(&golem);
+    iChangeSpriteFrames(&golem, golem_idle, 1);
+    iSetSpritePosition(&golem, 70, 122);
+    iLoadImage(&heart_full, "assets/Heart/HeartRed.png");    // Use your red heart image
+    iLoadImage(&heart_empty, "assets/Heart/HeartBlack.png"); // Use your black heart image
+ //   iLoadImage(&tile_set[0], "assets/Brick_01.png"); // brick
+ //   iLoadImage(&tile_set[1], "assets/Coin003.png");  // coin
+ //   iLoadImage(&tile_set[2], "assets/Spikes.png");   // spikes
+
+   
+ //   iLoadImage(&flagImg, "assets/GameBG/Win Flag002.png");
+
 }
 
 void loadLevelFromFile(int level)
@@ -241,11 +263,11 @@ void loadLevelFromFile(int level)
     fclose(fp);
 
     // Load tiles
-    iLoadImage(&tile_set[0], "assets/Level1image/Brick_01.png"); // brick
-    iLoadImage(&tile_set[1], "assets/Level1image/Coin003.png");  // coin
-    iLoadImage(&tile_set[2], "assets/Level1image/Spikes.png");   // spikes
+    iLoadImage(&tile_set[0], "assets/GameBG/Brick_01.png"); // brick
+    iLoadImage(&tile_set[1], "assets/GameBG/Coin003.png");  // coin
+    iLoadImage(&tile_set[2], "assets/GameBG/Spikes.png");   // spikes
 
-    Image flagImg;
+   Image flagImg;
     iLoadImage(&flagImg, "assets/GameBG/Win Flag002.png");
 
     tile_idx = 0;
@@ -307,7 +329,7 @@ void loadLevelFromFile(int level)
         }
     }
 }
-
+/*
 void loadResources()
 {
     iLoadFramesFromFolder(golem_idle, "assets/idle");
@@ -321,7 +343,7 @@ void loadResources()
     iLoadImage(&heart_full, "assets/Heart/HeartRed.png");    // Use your red heart image
     iLoadImage(&heart_empty, "assets/Heart/HeartBlack.png"); // Use your black heart image
 }
-
+*/
 void saveGameState()
 {
     prev_pic_x = golem.x;
@@ -1327,6 +1349,7 @@ int main(int argc, char *argv[])
     loadResources();
     loadHighScores();
     load_bg();
+    // loadLevelFromFile(int level);
     iSetTimer(100, iAnim);
     iSetTimer(19, animate_tile);
     iSetTimer(30, update_jump);
