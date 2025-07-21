@@ -377,6 +377,20 @@ int collision_idx(Sprite *s)
     return -1;
 }
 
+bool horizontal_collision(int new_x, int golem_y, int golem_width, int golem_height) {
+    Sprite test = golem;
+    test.x = new_x; 
+    test.y = golem_y;
+
+    for (int i = 0; i < tile_idx; i++) {
+        if (tile_type[i] != '*') continue; 
+        if (iCheckCollision(&test, &tiles[i])) {
+            return true; 
+        }
+    }
+    return false; 
+}
+
 void update_jump()
 {
     if (gameState != GAME)
@@ -565,8 +579,18 @@ void update_jump()
             }
             else {
                 dead = true;
-                deadTimer =0;
+                deadTimer =0; 
                 direction =0;
+                gameState = GAME_OVER_SCREEN;
+                if (score > highScore) {
+                enteringNameHigh = true;
+                nameCharIdx = 0;
+                playerName[0] = '\0';
+            } else {
+                enteringNameLow = true;
+                nameCharIdx = 0;
+                playerName[0] = '\0';
+            }
             }
         }
     }
@@ -1025,7 +1049,7 @@ void iKeyboard(unsigned char key, int state)
                 playerName[nameCharIdx] = '\0';
             }
         }
-        return; // ✅ Prevent further processing
+        return; 
     }
     if (enteringNameLow)
     {
@@ -1043,7 +1067,6 @@ void iKeyboard(unsigned char key, int state)
             else if (key == '\r' || key == 13) // Enter key
             {
                 enteringNameLow = false;
-                // saveHighScore();
                 gameState = GAME_OVER_SCREEN;
             }
             else if (key >= 32 && key <= 126 && nameCharIdx < 20)
@@ -1052,7 +1075,7 @@ void iKeyboard(unsigned char key, int state)
                 playerName[nameCharIdx] = '\0';
             }
         }
-        return; // ✅ Prevent further processing
+        return; 
     }
 
     // --------- FRONT PAGE ---------
@@ -1119,89 +1142,154 @@ GLUT_KEY_F12, GLUT_KEY_LEFT, GLUT_KEY_UP, GLUT_KEY_RIGHT, GLUT_KEY_DOWN,
 GLUT_KEY_PAGE_UP, GLUT_KEY_PAGE_DOWN, GLUT_KEY_HOME, GLUT_KEY_END,
 GLUT_KEY_INSERT */
 
-void iAnim()
-{
+// void iAnim()
+// {
 
-    if (gameState != GAME)
-        return;
+//     if (gameState != GAME)
+//         return;
+//     int idx;
+
+//     if (dead)
+//     {
+//         // iAnimateSprite(&golem);
+//         if (frame < 2)
+//         {
+//             iAnimateSprite(&golem);
+//             frame++;
+//         }
+//         else
+//         {
+//             golem.currentFrame = 2;
+//         }
+//         return;
+//     }
+
+//     if (hurt)
+//     {
+//         iAnimateSprite(&golem);
+//         if (hurtTimer > MAX_HURT_TIMER)
+//             return;
+//     }
+
+//     if (jump)
+//     {
+//         iAnimateSprite(&golem);
+//       // iPlaySound("assets/sounds/jump.wav", false,50);
+
+//         return;
+//     }
+
+//     // Predictive horizontal collision check
+//     Sprite test = golem;
+
+//     if (direction == -1) // left
+//     {
+//         idx = collision_idx(&test);
+//         if (idx == -1)
+//         {
+//             golem.x = golem.x - golemSpeed;
+//             speed = 0;
+//         }
+//         activity(1);
+//     }
+//     else if (direction == 1) // right
+//     {
+//         test.x = golem.x + golemSpeed;
+//         idx = collision_idx(&test);
+//         if (idx == -1)
+//         {
+//             // Prevent golem from going beyond last brick + flag
+//             if (golem.x + scroll_x >= lastBrickX + tile_width + 150)
+//             {
+//                 direction = 0;
+//                 return;
+//             }
+
+//             if (golem.x > 350)
+//             {
+//                 speed = -golemSpeed; // background scroll
+//             }
+//             else
+//             {
+//                 golem.x += golemSpeed;
+//                 speed = 0;
+//             }
+//         }
+//         else
+//         {
+//             speed = 0;
+//         }
+//         activity(1);
+//     }
+//     else
+//     {
+//         speed = 0;
+//         activity(0); // idle
+//     }
+
+//     iAnimateSprite(&golem);
+// }
+
+
+void iAnim() {
+    if (gameState != GAME) return;
     int idx;
 
-    if (dead)
-    {
-        // iAnimateSprite(&golem);
-        if (frame < 2)
-        {
+    if (dead) {
+        if (frame < 2) {
             iAnimateSprite(&golem);
             frame++;
-        }
-        else
-        {
+        } else {
             golem.currentFrame = 2;
         }
         return;
     }
 
-    if (hurt)
-    {
+    if (hurt) {
         iAnimateSprite(&golem);
-        if (hurtTimer > MAX_HURT_TIMER)
-            return;
+        if (hurtTimer > MAX_HURT_TIMER) return;
     }
 
-    if (jump)
-    {
+    if (jump) {
         iAnimateSprite(&golem);
-      // iPlaySound("assets/sounds/jump.wav", false,50);
-
         return;
     }
 
-    // Predictive horizontal collision check
     Sprite test = golem;
 
-    if (direction == -1) // left
-    {
-        idx = collision_idx(&test);
-        if (idx == -1)
-        {
-            golem.x = golem.x - golemSpeed;
+    if (direction == -1) { 
+        int new_x = golem.x - golemSpeed;
+        if (new_x >= 0 && !horizontal_collision(new_x, golem.y, golem_width, golem_height)) {
+            golem.x = new_x;
             speed = 0;
+            activity(1); 
+        } else {
+            direction = 0; 
+            activity(0); 
         }
-        activity(1);
-    }
-    else if (direction == 1) // right
-    {
-        test.x = golem.x + golemSpeed;
-        idx = collision_idx(&test);
-        if (idx == -1)
-        {
-            // Prevent golem from going beyond last brick + flag
-            if (golem.x + scroll_x >= lastBrickX + tile_width + 150)
-            {
-                direction = 0;
-                return;
-            }
+    } else if (direction == 1) { 
+        if (golem.x + scroll_x >= lastBrickX + tile_width + 150) {
+            direction = 0;
+            activity(0); 
+            return;
+        }
 
-            if (golem.x > 350)
-            {
-                speed = -golemSpeed; // background scroll
-            }
-            else
-            {
-                golem.x += golemSpeed;
+        int new_x = golem.x + golemSpeed;
+        if (!horizontal_collision(new_x, golem.y, golem_width, golem_height)) {
+            if (golem.x > 350) {
+                speed = -golemSpeed;
+            } else {
+                golem.x = new_x;
                 speed = 0;
             }
+            activity(1); 
+        } else {
+            direction = 0; 
+            activity(0); 
         }
-        else
-        {
-            speed = 0;
-        }
-        activity(1);
-    }
-    else
-    {
+    } else {
         speed = 0;
-        activity(0); // idle
+        activity(0); 
     }
 
     iAnimateSprite(&golem);
@@ -1214,7 +1302,6 @@ void animate_tile()
         return;
     if (direction == 1 && golem.x >= 350)
     {
-        // Stop scrolling when last brick is visible on screen
         if (lastBrickX + tile_width - scroll_x <= 800)
 
         {
@@ -1231,7 +1318,6 @@ void animate_tile()
 
         flag.x -= golemSpeed;
 
-        // bgScrollX += golemSpeed / 4;
     }
 }
 
