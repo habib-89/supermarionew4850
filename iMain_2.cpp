@@ -238,7 +238,7 @@ void loadResources()
 void loadLevelFromFile(int level)
 {
     char filename[100];
-    sprintf(filename, "levels(rafsan)/level_%d.txt", level);
+    sprintf(filename, "assets/levels(rafsan)/level_%d.txt", level);
 
     FILE *fp = fopen(filename, "r");
     if (fp == NULL)
