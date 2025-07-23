@@ -1014,20 +1014,26 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (gameState == PAUSE_MENU)
         {
-            if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
+            if (mx >= 250 && mx <= 500 && my >= 310 && my <= 356)
             {
                 gameState = GAME;
                 isPaused = false;
             }
-            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
+            else if (mx >= 250 && mx <= 500 && my >= 253 && my <= 299)
+            {
+                currentLevel = 1;
+                startLevel(currentLevel);
+            }
+
+            else if (mx >= 250 && mx <= 500 && my >= 195 && my <= 241)
             {
                 gameState = SAVE_SLOT_SELECT;
             }
-            else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
+            else if (mx >= 250 && mx <= 500 && my >= 137 && my <= 185)
             {
                 gameState = LOAD_SLOT_SELECT;
             }
-            else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
+            else if (mx >= 250 && mx <= 500 && my >= 80 && my <= 126)
             {
                 gameState = MENU;
                 isPaused = false;
