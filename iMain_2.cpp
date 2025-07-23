@@ -1164,94 +1164,6 @@ GLUT_KEY_F12, GLUT_KEY_LEFT, GLUT_KEY_UP, GLUT_KEY_RIGHT, GLUT_KEY_DOWN,
 GLUT_KEY_PAGE_UP, GLUT_KEY_PAGE_DOWN, GLUT_KEY_HOME, GLUT_KEY_END,
 GLUT_KEY_INSERT */
 
-// void iAnim()
-// {
-
-//     if (gameState != GAME)
-//         return;
-//     int idx;
-
-//     if (dead)
-//     {
-//         // iAnimateSprite(&golem);
-//         if (frame < 2)
-//         {
-//             iAnimateSprite(&golem);
-//             frame++;
-//         }
-//         else
-//         {
-//             golem.currentFrame = 2;
-//         }
-//         return;
-//     }
-
-//     if (hurt)
-//     {
-//         iAnimateSprite(&golem);
-//         if (hurtTimer > MAX_HURT_TIMER)
-//             return;
-//     }
-
-//     if (jump)
-//     {
-//         iAnimateSprite(&golem);
-//       // iPlaySound("assets/sounds/jump.wav", false,50);
-
-//         return;
-//     }
-
-//     // Predictive horizontal collision check
-//     Sprite test = golem;
-
-//     if (direction == -1) // left
-//     {
-//         idx = collision_idx(&test);
-//         if (idx == -1)
-//         {
-//             golem.x = golem.x - golemSpeed;
-//             speed = 0;
-//         }
-//         activity(1);
-//     }
-//     else if (direction == 1) // right
-//     {
-//         test.x = golem.x + golemSpeed;
-//         idx = collision_idx(&test);
-//         if (idx == -1)
-//         {
-//             // Prevent golem from going beyond last brick + flag
-//             if (golem.x + scroll_x >= lastBrickX + tile_width + 150)
-//             {
-//                 direction = 0;
-//                 return;
-//             }
-
-//             if (golem.x > 350)
-//             {
-//                 speed = -golemSpeed; // background scroll
-//             }
-//             else
-//             {
-//                 golem.x += golemSpeed;
-//                 speed = 0;
-//             }
-//         }
-//         else
-//         {
-//             speed = 0;
-//         }
-//         activity(1);
-//     }
-//     else
-//     {
-//         speed = 0;
-//         activity(0); // idle
-//     }
-
-//     iAnimateSprite(&golem);
-// }
-
 
 void iAnim() {
     if (gameState != GAME) return;
@@ -1350,7 +1262,7 @@ int main(int argc, char *argv[])
     loadHighScores();
     load_bg();
     // loadLevelFromFile(int level);
-    iSetTimer(100, iAnim);
+    iSetTimer(80, iAnim);
     iSetTimer(19, animate_tile);
     iSetTimer(30, update_jump);
 
