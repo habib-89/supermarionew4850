@@ -2,25 +2,27 @@
 #include <iostream>
 #include <fstream>
 #include "iSound.h"
-#include <time.h>
 using namespace std;
 
 #define MENU 0
 #define GAME 1
 #define GAME_OVER 2
-#define FRONT_PAGE -1
-#define HELP 3
-#define LEVEL_SELECT 4
-#define PAUSE_MENU 20
-#define LEVEL_COMPLETE 5
-#define GAME_OVER_SCREEN 6
-#define SCORE 7
-#define SAVE_SLOT_SELECT 8
-#define LOAD_SLOT_SELECT 9
-
+#define FRONT_PAGE 3
+#define HELP 4
+#define LEVEL_SELECT 5
+#define PAUSE_MENU 6
+#define LEVEL_COMPLETE 7
+#define GAME_OVER_SCREEN 8
+#define SCORE 9
+#define SAVE_SLOT_SELECT 10
+#define LOAD_SLOT_SELECT 11
 #define MAP_WIDTH 200
 #define MAP_HEIGHT 17
 #define GROUND 122
+#define MAX_RESPWAN_TIMER 50
+#define MAX_HURT_TIMER 50
+#define MAX_DEAD_TIMER 50
+#define MAX_SCORES 5
 
 int golem_height = 76;
 int golem_width = 45;
@@ -46,6 +48,8 @@ Image golem_dead_frames[3];
 Image tile_set[3];
 Sprite tiles[MAP_HEIGHT * MAP_WIDTH];
 Sprite golem;
+Sprite flag;
+Image heart_full, heart_empty;
 
 int speed = 0;
 int golemSpeed = 6;
@@ -67,8 +71,8 @@ int bgScrollX = 1;
 int tile_idx = 0;
 int scroll_x = 0;
 
-bool saveFileExists[3] = {false, false, false}; // Tracks existence of save files
-int selectedSlot = -1; // Currently selected save/load slot
+bool saveFileExists[3] = {false, false, false}; 
+int selectedSlot = -1; 
 
 int currentLevel = 1;
 const int maxLevel = 3;
@@ -76,11 +80,9 @@ const int maxLevel = 3;
 int score = 0;
 int frame = 0;
 
-Sprite flag;
 int lastBrickX = 0;
 bool levelComplete = false;
 
-Image heart_full, heart_empty;
 int life = 3;
 bool hurt = false;
 int hurtTimer = 0;
@@ -89,10 +91,6 @@ int deadTimer = 0;
 bool respawn = false;
 int respawn_timer = 0;
 
-#define MAX_RESPWAN_TIMER 50   
-#define MAX_HURT_TIMER 50
-#define MAX_DEAD_TIMER 50
-
 char playerName[100] = "";
 char highScorer[100] = "None";
 int highScore = 0;
@@ -100,7 +98,6 @@ bool enteringNameHigh = false;
 bool enteringNameLow = false;
 int nameCharIdx = 0;
 
-#define MAX_SCORES 5
 char highScorers[MAX_SCORES][100];
 int highScores[MAX_SCORES];
 
@@ -164,8 +161,7 @@ void startLevel(int level)
     jump = 0;
     jump_speed = 0;
     animation = -1;
-    // going_right = true;
-    // iMirrorSprite(&golem, HORIZONTAL, false);
+
     activity(0);
 
     levelComplete = false;
@@ -247,7 +243,6 @@ void saveGameState(int slot)
     fprintf(fp, "%d\n", gameStartTime);
     fprintf(fp, "%d\n", scroll_x);
     fprintf(fp, "%d\n", (int)gameOver);
-    // fprintf(fp, "%d\n", (int)going_right);
     fprintf(fp, "%d\n", animation);
     fprintf(fp, "%d\n", frame);
     fprintf(fp, "%d\n", tile_idx);
@@ -285,18 +280,12 @@ void loadGameState(int slot)
     fscanf(fp, "%d", &gameStartTime);
     fscanf(fp, "%d", &scroll_x);
     fscanf(fp, "%d", &tempGameOver);
-    // fscanf(fp, "%d", &tempGoingRight);
     fscanf(fp, "%d", &animation);
     fscanf(fp, "%d", &frame);
     fscanf(fp, "%d", &tile_idx);
 
     gameOver = (bool)tempGameOver;
 
-    // Debug: Print loaded values
-    printf("Loaded: level=%d, golem=(%d,%d), score=%d, life=%d, jump=%d, jump_speed=%d, direction=%d, scroll_x=%d, gameOver=%d, going_right=%d, animation=%d, frame=%d, tile_idx=%d\n",
-           currentLevel, golem.x, golem.y, score, life, jump, jump_speed, direction, scroll_x, gameOver, going_right, animation, frame, tile_idx);
-
-    // Restore tiles
     for (int i = 0; i < tile_idx; i++)
     {
         int x, y;
@@ -307,10 +296,10 @@ void loadGameState(int slot)
         iChangeSpriteFrames(&tiles[i], &tile_set[tileIndex], 1);
         iSetSpritePosition(&tiles[i], x, y);
         tile_type[i] = type;
-        printf("Restored tile %d: x=%d, y=%d, type=%c\n", i, x, y, type);
+        
     }
 
-    // Restore flag
+    
     int flag_x, flag_y;
     fscanf(fp, "%d %d", &flag_x, &flag_y);
     Image flagImg;
@@ -318,16 +307,13 @@ void loadGameState(int slot)
     iInitSprite(&flag);
     iChangeSpriteFrames(&flag, &flagImg, 1);
     iSetSpritePosition(&flag, flag_x, flag_y);
-    printf("Restored flag: x=%d, y=%d\n", flag_x, flag_y);
-
+    
     fclose(fp);
 
-    // Set golem's animation and mirroring
     iSetSpritePosition(&golem, golem.x, golem.y);
     activity(animation);
     golem.currentFrame = frame;
 
-    // Ensure background is loaded
     if (!bg[currentLevel].data)
     {
         load_bg();
@@ -783,12 +769,8 @@ void iDraw()
     }
     else if (gameState == MENU)
     {
-        iShowImage(0, 0, "assets/GameBG/2nd cover003.png");
-        // Draw Load Game rectangle
-        iSetColor(100, 100, 100);
-        iFilledRectangle(208, 270, 388, 50);
-        iSetColor(255, 255, 255);
-        iText(350, 290, "Load Game", GLUT_BITMAP_HELVETICA_18);
+        iShowImage(0, 0, "assets/GameBG/2nd cover004.png");
+
     }
     else if (gameState == SCORE)
     {
@@ -839,6 +821,7 @@ void iDraw()
     {
         iClear();
         iShowLoadedImage(0, 0, &bg[currentLevel]);
+        iShowImage(730,760,"assets/GameBG/pausebutton001.png");
 
         iShowSprite(&golem);
 
@@ -850,11 +833,12 @@ void iDraw()
         sprintf(scoreStr, "Score: %d", score);
         iSetColor(255, 255, 255);
         iText(20, 460, scoreStr, GLUT_BITMAP_HELVETICA_18);
-
+/*
         iSetColor(100, 100, 100);
         iFilledRectangle(740, 450, 50, 30);
         iSetColor(255, 255, 255);
         iText(750, 460, "Pause", GLUT_BITMAP_HELVETICA_12);
+        */
 
         if (gameOver)
         {
@@ -878,67 +862,25 @@ void iDraw()
         }
 
         iShowSprite(&flag);
+         iShowImage(730,440,"assets/GameBG/pausebutton001.png");
     }
     else if (gameState == PAUSE_MENU)
     {
         iClear();
-        iShowImage(0, 0, "assets/GameBG/Pause002.png");
-        // Draw Save Game and Load Game rectangles
-        iSetColor(100, 100, 100);
-        iFilledRectangle(278, 230, 240, 50); // Save Game
-        iFilledRectangle(278, 160, 240, 50); // Load Game
-        iSetColor(255, 255, 255);
-        iText(350, 250, "Save Game", GLUT_BITMAP_HELVETICA_18);
-        iText(350, 180, "Load Game", GLUT_BITMAP_HELVETICA_18);
+        iShowImage(0, 0, "assets/GameBG/Pause 003.png");
+
     }
     else if (gameState == SAVE_SLOT_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "assets/GameBG/Pause002.png");
-        iSetColor(0, 0, 0);
-        iText(300, 400, "Select Save Slot", GLUT_BITMAP_TIMES_ROMAN_24);
-        for (int i = 0; i < 3; i++)
-        {
-            iSetColor(100, 100, 100);
-            iFilledRectangle(278, 300 - i * 70, 240, 50);
-            iSetColor(255, 255, 255);
-            char slotText[20];
-            sprintf(slotText, "Slot %d", i + 1);
-            iText(350, 320 - i * 70, slotText, GLUT_BITMAP_HELVETICA_18);
-        }
-        iSetColor(100, 100, 100);
-        iFilledRectangle(278, 90, 240, 50);
-        iSetColor(255, 255, 255);
-        iText(350, 110, "Back", GLUT_BITMAP_HELVETICA_18);
+        iShowImage(0, 0, "assets/GameBG/Selectslot001.png");
+
     }
     else if (gameState == LOAD_SLOT_SELECT)
     {
         iClear();
-        iShowImage(0, 0, "assets/GameBG/Pause002.png");
-        iSetColor(0, 0, 0);
-        iText(300, 400, "Select Load Slot", GLUT_BITMAP_TIMES_ROMAN_24);
-        for (int i = 0; i < 3; i++)
-        {
-            if (saveFileExists[i])
-            {
-                iSetColor(100, 100, 100);
-                iFilledRectangle(278, 300 - i * 70, 240, 50);
-                iSetColor(255, 255, 255);
-            }
-            else
-            {
-                iSetColor(50, 50, 50); // Gray out if slot is empty
-                iFilledRectangle(278, 300 - i * 70, 240, 50);
-                iSetColor(150, 150, 150);
-            }
-            char slotText[20];
-            sprintf(slotText, "Slot %d", i + 1);
-            iText(350, 320 - i * 70, slotText, GLUT_BITMAP_HELVETICA_18);
-        }
-        iSetColor(100, 100, 100);
-        iFilledRectangle(278, 90, 240, 50);
-        iSetColor(255, 255, 255);
-        iText(350, 110, "Back", GLUT_BITMAP_HELVETICA_18);
+        iShowImage(0, 0, "assets/GameBG/Selectslot001.png");
+
     }
     else if (gameState == GAME_OVER_SCREEN)
     {
@@ -1005,27 +947,27 @@ void iMouse(int button, int state, int mx, int my)
         else if (gameState == MENU)
         {
             // New Game
-            if (mx >= 208 && mx <= 596 && my >= 330 && my <= 385)
+            if (mx >= 138 && mx <= 630 && my >= 340 && my <= 402)
             {
                 gameState = LEVEL_SELECT;
             }
             // Load Game
-            else if (mx >= 208 && mx <= 596 && my >= 270 && my <= 320)
+            else if (mx >= 138 && mx <= 630 && my >= 258 && my <= 320)
             {
                 gameState = LOAD_SLOT_SELECT;
             }
-            // Help
-            else if (mx >= 208 && mx <= 596 && my >= 114 && my <= 165)
-            {
-                gameState = HELP;
-            }
-            // Score
-            else if (mx >= 208 && mx <= 596 && my >= 182 && my <= 235)
+            // score
+            else if (mx >= 138 && mx <= 630 && my >= 180 && my <= 238)
             {
                 gameState = SCORE;
             }
+            // help
+            else if (mx >= 138 && mx <= 630 && my >= 100 && my <= 158)
+            {
+                gameState = HELP;
+            }
             // Exit
-            else if (mx >= 208 && mx <= 596 && my >= 66 && my <= 112)
+            else if (mx >= 138 && mx <= 630 && my >= 40 && my <= 95)
             {
                 exit(0);
             }
@@ -1064,7 +1006,7 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (gameState == GAME)
         {
-            if (mx >= 740 && mx <= 790 && my >= 450 && my <= 480)
+            if (mx >= 730 && mx <= 780 && my >= 438 && my <= 490)
             {
                 gameState = PAUSE_MENU;
                 isPaused = true;
@@ -1093,41 +1035,41 @@ void iMouse(int button, int state, int mx, int my)
         }
         else if (gameState == SAVE_SLOT_SELECT)
         {
-            if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350)
+            if (mx >= 222 && mx <= 532 && my >= 298 && my <= 368)
             {
                 saveGameState(0);
                 gameState = PAUSE_MENU;
             }
-            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280)
+            else if (mx >= 222 && mx <= 532 && my >= 210 && my <= 278)
             {
                 saveGameState(1);
                 gameState = PAUSE_MENU;
             }
-            else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210)
+            else if (mx >= 222 && mx <= 532 && my >= 120 && my <= 189)
             {
                 saveGameState(2);
                 gameState = PAUSE_MENU;
             }
-            else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
+            else if (mx >= 290 && mx <= 465 && my >= 42 && my <= 99)
             {
                 gameState = PAUSE_MENU;
             }
         }
         else if (gameState == LOAD_SLOT_SELECT)
         {
-            if (mx >= 278 && mx <= 518 && my >= 300 && my <= 350 && saveFileExists[0])
+            if (mx >= 222 && mx <= 532 && my >= 298 && my <= 368 && saveFileExists[0])
             {
                 loadGameState(0);
             }
-            else if (mx >= 278 && mx <= 518 && my >= 230 && my <= 280 && saveFileExists[1])
+            else if (mx >= 222 && mx <= 532 && my >= 210 && my <= 278 && saveFileExists[1])
             {
                 loadGameState(1);
             }
-            else if (mx >= 278 && mx <= 518 && my >= 160 && my <= 210 && saveFileExists[2])
+            else if (mx >= 222 && mx <= 532 && my >= 120 && my <= 189 && saveFileExists[2])
             {
                 loadGameState(2);
             }
-            else if (mx >= 278 && mx <= 518 && my >= 90 && my <= 140)
+            else if (mx >= 290 && mx <= 465 && my >= 42 && my <= 99)
             {
                 gameState = gameState == PAUSE_MENU ? PAUSE_MENU : MENU;
             }
@@ -1171,11 +1113,11 @@ void iMouseWheel(int dir, int mx, int my)
 
 void iKeyboard(unsigned char key, int state)
 {
-    if (enteringNameHigh)
+   if (enteringNameHigh)
     {
         if (state == GLUT_DOWN)
         {
-            if (key == '\b')
+            if (key == '\b') // Backspace
             {
                 if (nameCharIdx > 0)
                 {
@@ -1183,7 +1125,7 @@ void iKeyboard(unsigned char key, int state)
                     playerName[nameCharIdx] = '\0';
                 }
             }
-            else if (key == '\r' || key == 13)
+            else if (key == '\r' || key == 13) // Enter
             {
                 enteringNameHigh = false;
                 saveHighScore(playerName, score);
@@ -1194,10 +1136,10 @@ void iKeyboard(unsigned char key, int state)
                 playerName[nameCharIdx++] = key;
                 playerName[nameCharIdx] = '\0';
             }
+            return;
         }
-        return;
     }
-    if (enteringNameLow)
+    else if (enteringNameLow)
     {
         if (state == GLUT_DOWN)
         {
@@ -1219,8 +1161,8 @@ void iKeyboard(unsigned char key, int state)
                 playerName[nameCharIdx++] = key;
                 playerName[nameCharIdx] = '\0';
             }
+            return;
         }
-        return;
     }
 
     if (gameState == FRONT_PAGE)
@@ -1249,19 +1191,9 @@ void iKeyboard(unsigned char key, int state)
             life = 3;
             startLevel(currentLevel);
         }
-        else if ((key == 'p' || key == 'P') && state == GLUT_DOWN)
-        {
-            isPaused = !isPaused;
-            gameState = PAUSE_MENU;
-        }
         else if ((key == 'e' || key == 'E') && state == GLUT_DOWN)
         {
             exit(0);
-        }
-        else if ((key == 'm' || key == 'M') && state == GLUT_DOWN)
-        {
-            gameState = MENU;
-            isPaused = false;
         }
         else if ((key == 's' || key == 'S') && state == GLUT_DOWN)
         {
@@ -1288,22 +1220,14 @@ void iKeyboard(unsigned char key, int state)
             gameState = LOAD_SLOT_SELECT;
         }
     }
-    else if (gameState == SAVE_SLOT_SELECT || gameState == LOAD_SLOT_SELECT)
-    {
-        if ((key == 27) && state == GLUT_DOWN) // ESC key to go back
-        {
-            gameState = gameState == SAVE_SLOT_SELECT ? PAUSE_MENU : (gameState == LOAD_SLOT_SELECT && isPaused ? PAUSE_MENU : MENU);
-        }
-    }
+    
 
     if (state == GLUT_DOWN)
     {
-        if (key == 'r')
+        if (key == 'c')
             iResumeSound(bgSoundIdx);
         else if (key == 'p')
             iPauseSound(bgSoundIdx);
-        else if (key == 'x')
-            iStopSound(bgSoundIdx);
     }
 }
 
