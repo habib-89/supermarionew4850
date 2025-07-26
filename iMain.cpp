@@ -77,6 +77,7 @@ int selectedSlot = -1;
 
 int currentLevel = 1;
 const int maxLevel = 3;
+bool levelCompleted[3] = {false, false, false}; 
 
 int score = 0;
 int frame = 0;
@@ -626,13 +627,14 @@ void update_jump()
         }
     }
 
-    if (!levelComplete && iCheckCollision(&golem, &flag))
-    {
-        levelComplete = true;
-        direction = 0;
-        speed = 0;
-        gameState = LEVEL_COMPLETE;
-    }
+    if (!levelComplete && iCheckCollision(&golem, &flag)) {
+    levelComplete = true;
+    direction = 0;
+    speed = 0;
+    gameState = LEVEL_COMPLETE;
+    levelCompleted[currentLevel - 1] = true; // Mark this level as completed
+}
+
     if (hurt && !dead)
     {
         hurtTimer++;
@@ -753,6 +755,12 @@ void iDraw()
     {
         iClear();
         iShowImage(0, 0, "assets/GameBG/Level BG001.png");
+           if (!levelCompleted[0])
+       iShowImage(468,204,"assets/GameBG/lock image001.png");
+
+    if (!levelCompleted[1])
+         iShowImage(100,110,"assets/GameBG/lock image001.png");
+
     }
     else if (gameState == GAME)
     {
@@ -925,13 +933,16 @@ void iMouse(int button, int state, int mx, int my)
             }
             else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
             {
-                currentLevel = 2;
-                startLevel(currentLevel);
+                 if (levelCompleted[0]) {
+                    currentLevel = 2;
+                    startLevel(currentLevel);
+                } 
             }
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
-            {
-                currentLevel = 3;
-                startLevel(currentLevel);
+            { if (levelCompleted[1]) {
+                    currentLevel = 3;
+                    startLevel(currentLevel);
+                } 
             }
         }
         else if (gameState == HELP)
@@ -1052,8 +1063,8 @@ void iMouse(int button, int state, int mx, int my)
 
 void iMouseWheel(int dir, int mx, int my)
 {
-}
 
+}
 void iKeyboard(unsigned char key, int state)
 {
     if (gameState == FRONT_PAGE)
@@ -1144,7 +1155,6 @@ void iKeyboard(unsigned char key, int state)
             iPauseSound(bgSoundIdx);
     }
 }
-
 void iSpecialKeyboard(unsigned char key, int state)
 {
     if (gameState == GAME)
@@ -1187,9 +1197,6 @@ void iSpecialKeyboard(unsigned char key, int state)
             speed = 0;
         }
     }
-
-
-
     switch (key)
     {
     case GLUT_KEY_UP:
@@ -1329,7 +1336,7 @@ int main(int argc, char *argv[])
     iInitializeSound();
     bgSoundIdx = iPlaySound("assets/sounds/Platformer Bonus level.wav", true, 50);
 
-    iOpenWindow(800, 500, "Super Mario");
+    iOpenWindow(800, 500, "Super BUET Bros");
 
     return 0;
 }
