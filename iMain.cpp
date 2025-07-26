@@ -132,7 +132,9 @@ void load_bg()
 
 void startLevel(int level)
 {
-    score = 0;
+    if (level==1){
+        score=0;
+    }
     life = 3;
     hurt = false;
     hurtTimer = 0;
