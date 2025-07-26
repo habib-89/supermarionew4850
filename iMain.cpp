@@ -759,8 +759,8 @@ void iDraw()
         if (!levelCompleted[0])
             iShowImage(468,204,"assets/GameBG/lock image001.png");
 
-        if (!levelCompleted[1])
-            iShowImage(100,110,"assets/GameBG/lock image001.png");
+      //  if (!levelCompleted[1])
+      //      iShowImage(100,110,"assets/GameBG/lock image001.png");
 
     }
     else if (gameState == GAME)
@@ -942,11 +942,11 @@ void iMouse(int button, int state, int mx, int my)
             }
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
-                if (levelCompleted[1])
-                {
+              //  if (levelCompleted[1])
+              //  {
                     currentLevel = 3;
                     startLevel(currentLevel);
-                }
+             //   }
             }
         }
         else if (gameState == HELP)
