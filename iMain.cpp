@@ -77,7 +77,7 @@ int selectedSlot = -1;
 
 int currentLevel = 1;
 const int maxLevel = 3;
-bool levelCompleted[3] = {false, false, false}; 
+bool levelCompleted[3] = {false, false, false};
 
 int score = 0;
 int frame = 0;
@@ -627,13 +627,14 @@ void update_jump()
         }
     }
 
-    if (!levelComplete && iCheckCollision(&golem, &flag)) {
-    levelComplete = true;
-    direction = 0;
-    speed = 0;
-    gameState = LEVEL_COMPLETE;
-    levelCompleted[currentLevel - 1] = true; // Mark this level as completed
-}
+    if (!levelComplete && iCheckCollision(&golem, &flag))
+    {
+        levelComplete = true;
+        direction = 0;
+        speed = 0;
+        gameState = LEVEL_COMPLETE;
+        levelCompleted[currentLevel - 1] = true; // Mark this level as completed
+    }
 
     if (hurt && !dead)
     {
@@ -755,11 +756,11 @@ void iDraw()
     {
         iClear();
         iShowImage(0, 0, "assets/GameBG/Level BG001.png");
-           if (!levelCompleted[0])
-       iShowImage(468,204,"assets/GameBG/lock image001.png");
+        if (!levelCompleted[0])
+            iShowImage(468,204,"assets/GameBG/lock image001.png");
 
-    if (!levelCompleted[1])
-         iShowImage(100,110,"assets/GameBG/lock image001.png");
+        if (!levelCompleted[1])
+            iShowImage(100,110,"assets/GameBG/lock image001.png");
 
     }
     else if (gameState == GAME)
@@ -831,7 +832,7 @@ void iDraw()
         iClear();
         if (currentLevel == 3)
         {
-            gameState = GAME_COMPLETED; 
+            gameState = GAME_COMPLETED;
         }
         else
         {
@@ -933,16 +934,19 @@ void iMouse(int button, int state, int mx, int my)
             }
             else if (mx >= 427 && mx <= 740 && my >= 194 && my <= 244)
             {
-                 if (levelCompleted[0]) {
+                if (levelCompleted[0])
+                {
                     currentLevel = 2;
                     startLevel(currentLevel);
-                } 
+                }
             }
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
-            { if (levelCompleted[1]) {
+            {
+                if (levelCompleted[1])
+                {
                     currentLevel = 3;
                     startLevel(currentLevel);
-                } 
+                }
             }
         }
         else if (gameState == HELP)
@@ -1123,10 +1127,10 @@ void iKeyboard(unsigned char key, int state)
         }
     }
 
-    
+
     if (gameState == GAME_COMPLETED && state == GLUT_DOWN)
     {
-        if (key == '\b') 
+        if (key == '\b')
         {
             int len = strlen(playerName);
             if (len > 0)
@@ -1134,7 +1138,7 @@ void iKeyboard(unsigned char key, int state)
                 playerName[len - 1] = '\0';
             }
         }
-        else if (key == '\r')  
+        else if (key == '\r')
         {
             saveHighScore(playerName, score);
             gameState = SCORE;
