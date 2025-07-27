@@ -25,6 +25,10 @@ using namespace std;
 #define MAX_DEAD_TIMER 50
 #define MAX_SCORES 5
 
+int level1Score = 0;
+int level2Score = 0;
+int level3Score = 0;
+
 int golem_height = 76;
 int golem_width = 45;
 
@@ -759,8 +763,8 @@ void iDraw()
         if (!levelCompleted[0])
             iShowImage(468,204,"assets/GameBG/lock image001.png");
 
-      //  if (!levelCompleted[1])
-      //      iShowImage(100,110,"assets/GameBG/lock image001.png");
+        //  if (!levelCompleted[1])
+        //      iShowImage(100,110,"assets/GameBG/lock image001.png");
 
     }
     else if (gameState == GAME)
@@ -830,6 +834,14 @@ void iDraw()
     else if (gameState == LEVEL_COMPLETE)
     {
         iClear();
+
+        if (currentLevel == 1)
+            level1Score = score;
+        else if (currentLevel == 2)
+            level2Score = score - level1Score;
+        else if (currentLevel == 3)
+            level3Score = score - level1Score - level2Score;
+
         if (currentLevel == 3)
         {
             gameState = GAME_COMPLETED;
@@ -838,6 +850,7 @@ void iDraw()
         {
             iShowImage(0, 0, "assets/GameBG/Level Complete001.png");
         }
+
     }
     else if (gameState == GAME_COMPLETED)
     {
@@ -942,11 +955,11 @@ void iMouse(int button, int state, int mx, int my)
             }
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
-              //  if (levelCompleted[1])
-              //  {
-                    currentLevel = 3;
-                    startLevel(currentLevel);
-             //   }
+                //  if (levelCompleted[1])
+                //  {
+                currentLevel = 3;
+                startLevel(currentLevel);
+                //   }
             }
         }
         else if (gameState == HELP)
@@ -1051,6 +1064,13 @@ void iMouse(int button, int state, int mx, int my)
         {
             if (mx >= 185 && mx <= 380 && my >= 53 && my <= 115)
             {
+                if (currentLevel == 1)
+                    score = 0;
+                else if (currentLevel == 2)
+                    score = level1Score;
+                else if (currentLevel == 3)
+                    score = level1Score + level2Score;
+
                 life = 3;
                 startLevel(currentLevel);
                 gameState = GAME;
