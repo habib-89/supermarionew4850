@@ -345,7 +345,7 @@ void saveHighScore(char *playerName, int playerScore)
 void saveGameState(int slot)
 {
     char filename[100];
-    sprintf(filename, "saves/savegame%d.txt", slot + 1);
+    sprintf(filename, "assets/Saves/savegame%d.txt", slot + 1);
     FILE *fp = fopen(filename, "w");
     if (fp == NULL)
     {
@@ -380,7 +380,7 @@ void saveGameState(int slot)
 void loadGameState(int slot)
 {
     char filename[100];
-    sprintf(filename, "saves/savegame%d.txt", slot + 1);
+    sprintf(filename, "assets/Saves/savegame%d.txt", slot + 1);
     FILE *fp = fopen(filename, "r");
     if (fp == NULL)
     {
