@@ -1228,10 +1228,10 @@ void iSpecialKeyboard(unsigned char key, int state)
     switch (key)
     {
     case GLUT_KEY_UP:
-        iIncreaseVolume(bgSoundIdx, 5);
+        iIncreaseVolume(bgSoundIdx, 2);
         break;
     case GLUT_KEY_DOWN:
-        iDecreaseVolume(bgSoundIdx, 5);
+        iDecreaseVolume(bgSoundIdx, 2);
         break;
     default:
         break;
@@ -1362,7 +1362,7 @@ int main(int argc, char *argv[])
     iSetTimer(30, update_jump);
 
     iInitializeSound();
-    bgSoundIdx = iPlaySound("assets/sounds/Platformer Bonus level.wav", true, 50);
+    bgSoundIdx = iPlaySound("assets/sounds/Platformer Bonus level.wav", true, 30);
 
     iOpenWindow(800, 500, "Super BUET Bros");
 
