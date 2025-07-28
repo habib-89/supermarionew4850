@@ -613,7 +613,7 @@ void update_jump()
                 hurtTimer = 0;
                 direction = 0;
                 speed = 0;
-                   iPlaySound("assets/sounds/hurt.wav", false, 50);
+                iPlaySound("assets/sounds/hurt.wav", false, 50);
                 // if (golem.x < tiles[i].x)
                 //     golem.x = tiles[i].x - tile_width;
                 // else
@@ -641,7 +641,7 @@ void update_jump()
         direction = 0;
         speed = 0;
         gameState = LEVEL_COMPLETE;
-        levelCompleted[currentLevel - 1] = true; 
+        levelCompleted[currentLevel - 1] = true;
     }
 
     if (hurt && !dead)
@@ -767,8 +767,8 @@ void iDraw()
         if (!levelCompleted[0])
             iShowImage(468,204,"assets/GameBG/lock image001.png");
 
-          if (!levelCompleted[1])
-              iShowImage(100,110,"assets/GameBG/lock image001.png");
+        if (!levelCompleted[1])
+            iShowImage(100,110,"assets/GameBG/lock image001.png");
 
     }
     else if (gameState == GAME)
@@ -959,11 +959,11 @@ void iMouse(int button, int state, int mx, int my)
             }
             else if (mx >= 58 && mx <= 369 && my >= 100 && my <= 151)
             {
-                  if (levelCompleted[1])
-                  {
-                currentLevel = 3;
-                startLevel(currentLevel);
-                   }
+                if (levelCompleted[1])
+                {
+                    currentLevel = 3;
+                    startLevel(currentLevel);
+                }
             }
         }
         else if (gameState == HELP)
@@ -1151,7 +1151,7 @@ void iKeyboard(unsigned char key, int state)
         }
     }
 
- 
+
     if (gameState == GAME_COMPLETED && state == GLUT_DOWN)
     {
         if (key == '\b')
@@ -1368,3 +1368,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
