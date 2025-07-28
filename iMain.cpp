@@ -241,7 +241,7 @@ void load_bg()
 {
     iLoadImage(&bg[1], "assets/Level1image/BGL1001.png");
     iLoadImage(&bg[2], "assets/GameBG/Level2BG.jpg");
-    iLoadImage(&bg[3], "assets/GameBG/Level3BG.jpg");
+    iLoadImage(&bg[3], "assets/GameBG/LEVEL3BG02.png");
 }
 
 void startLevel(int level)
@@ -256,10 +256,10 @@ void startLevel(int level)
     dead = false;
     deadTimer = 0;
     tile_idx = 0;
-    for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++)
-    {
-        tile_type[i] = '_';
-    }
+    // for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++)
+    // {
+    //     tile_type[i] = '_';
+    // }
 
     scroll_x = 0;
 
@@ -374,7 +374,7 @@ void saveGameState(int slot)
 
     fclose(fp);
     saveFileExists[slot] = true;
-    printf("Game state saved to %s\n", filename);
+    // printf("Game state saved to %s\n", filename);
 }
 
 void loadGameState(int slot)
@@ -609,24 +609,28 @@ void update_jump()
             {
                 life--;
                 hurt = true;
+
                 hurtTimer = 0;
                 direction = 0;
                 speed = 0;
-                if (golem.x < tiles[i].x)
-                    golem.x = tiles[i].x - tile_width;
-                else
-                    golem.x = tiles[i].x + tile_width;
+                   iPlaySound("assets/sounds/hurt.wav", false, 50);
+                // if (golem.x < tiles[i].x)
+                //     golem.x = tiles[i].x - tile_width;
+                // else
+                //     golem.x = tiles[i].x + tile_width;
                 if (life > 0)
                 {
                     activity(3);
                 }
                 else
                 {
+                    // hurt = false;
                     dead = true;
                     activity(4);
                     frame = 0;
                     deadTimer = 0;
                 }
+
             }
         }
     }
@@ -1147,7 +1151,7 @@ void iKeyboard(unsigned char key, int state)
         }
     }
 
-
+ 
     if (gameState == GAME_COMPLETED && state == GLUT_DOWN)
     {
         if (key == '\b')
