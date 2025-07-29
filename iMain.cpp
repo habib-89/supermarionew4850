@@ -403,7 +403,6 @@ void loadGameState(int slot)
     fscanf(fp, "%d", &animation);
     fscanf(fp, "%d", &frame);
     fscanf(fp, "%d", &tile_idx);
-
     gameOver = (bool)tempGameOver;
 
     for (int i = 0; i < tile_idx; i++)
@@ -562,6 +561,7 @@ void update_jump()
         }
         else if (direction == 1 && golem.x >= 350)
         {
+            // *
             speed = -golemSpeed;
         }
         else if (direction == -1)
@@ -781,7 +781,7 @@ void iDraw()
 
         if (direction == 1 && golem.x >= 350)
         {
-            iWrapImage(&bg[currentLevel], -2);
+            iWrapImage(&bg[currentLevel], -1);
         }
         char scoreStr[50];
         sprintf(scoreStr, "Score: %d", score);
@@ -1132,6 +1132,10 @@ void iKeyboard(unsigned char key, int state)
         else if ((key == 'l' || key == 'L') && state == GLUT_DOWN)
         {
             gameState = LOAD_SLOT_SELECT;
+        }
+        else if ((key == 27) && state == GLUT_DOWN)
+        {
+            gameState = PAUSE_MENU;
         }
     }
     else if (gameState == PAUSE_MENU)
