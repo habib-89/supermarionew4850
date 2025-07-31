@@ -1,7 +1,5 @@
 <h2 align="center">SUPER BUET BROS</h2>
 
-
-
 ## About The Project
 
 Super Buet Bros is a platformer game that close resembles our beloved Super Mario Bros . The game is an iGraphics project for level 1 term 1 . We tried to bring the flavors of a good enjoyable platformer as much as we could . The goal of the player is to jump over the blocks and to avoid obstacles throughout the map trying to reach the final checkpoint without dying , all while collecting coins to get the highest score . The levels grow in difficulty gradually with the first being easy enough to get you the hang of the controls and the final level beign difficult enough to make you want to rage quit(Even we had to break a sweat while finishing it for the first time). So keep smashing the keyboard until you your name in the leaderboard . Enjoy
@@ -10,7 +8,7 @@ Shahriar Habib
 BUET,CSE
 2405050
 
-Rafsan Rashid 
+Rafsan Rashid
 BUET,CSE
 2405048
 
@@ -56,6 +54,8 @@ Demo: https://www.youtube.com/watch?v=H1tEW2x7log
 
 # Supervisor
 
-    Mahir Labib Dihan
-    Adjunct Lecturer
-    CSE, BUET
+   -**Mahir Labib Dihan**
+    -**Adjunct Lecturer**
+     Department of Computer Science and Engineering
+     Bangladesh University of Engineering and Technology
+     Dhaka-1000, Bangladesh
