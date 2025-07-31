@@ -1,5 +1,5 @@
 <div align="center">
-<h1> Modern iGraphics Library</h1>
+<h1> SUPER BUET BROS</h1>
 <!-- <h2> A C++ Graphics Library for Beginners</h2> -->
 </div>
 
