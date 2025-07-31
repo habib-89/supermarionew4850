@@ -57,9 +57,6 @@ Demo: https://www.youtube.com/watch?v=H1tEW2x7log
 - Mahir Labib Dihan
 
   - **Adjunt Lecturer**
-
-    <!-- :arrow_forward: **Contact:** -->
-
     Department of Computer Science and Engineering
     Bangladesh University of Engineering and Technology
     Dhaka-1000, Bangladesh
