@@ -54,8 +54,8 @@ Demo: https://www.youtube.com/watch?v=H1tEW2x7log
 
 # Supervisor
 
-   -**Mahir Labib Dihan**
-    -**Adjunct Lecturer**
-     Department of Computer Science and Engineering
-     Bangladesh University of Engineering and Technology
-     Dhaka-1000, Bangladesh
+-**Mahir Labib Dihan**
+-**Adjunct Lecturer**
+Department of Computer Science and Engineering
+Bangladesh University of Engineering and Technology
+Dhaka-1000, Bangladesh
