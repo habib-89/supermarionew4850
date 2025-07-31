@@ -52,10 +52,14 @@ Demo: https://www.youtube.com/watch?v=H1tEW2x7log
 # Level Complete
 <img src="assets\screen shots\level complete.png" alt="Level Complete" width="800" height ="500"/>
 
-# Supervisor
+## Supervisor
 
--**Mahir Labib Dihan**
--**Adjunct Lecturer**
-Department of Computer Science and Engineering
-Bangladesh University of Engineering and Technology
-Dhaka-1000, Bangladesh
+- Khaled Mahmud Shahriar
+
+  - **Assistant Professor**
+
+    :arrow_forward: **Contact:**
+
+    Department of Computer Science and Engineering
+    Bangladesh University of Engineering and Technology
+    Dhaka-1000, Bangladesh
