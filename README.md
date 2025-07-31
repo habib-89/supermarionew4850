@@ -1,8 +1,14 @@
-# DxBall
-Updated version of most popular game Dxball . 
-Made using iGraphics . 
+<h2 align="center">SUPER BUET BROS</h2>
 
-Demo: https://www.youtube.com/watch?v=J9kCPZOhV7A
+
+
+## About The Project
+
+platformer project for level 1 term 1
+
+Demo: https://www.youtube.com/watch?v=H1tEW2x7log
+
+
 
 # Main Menu
 <img src="assets\screen shots\front screen.png" alt="Front Screen" width="800" height ="500"/>
