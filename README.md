@@ -8,11 +8,9 @@ Shahriar Habib <br>
 BUET,CSE<br>
 2405050<br>
 
-Rafsan Rashid
-
-BUET,CSE
-
-2405048
+Rafsan Rashid<br>
+BUET,CSE<br>
+2405048<br>
 
 # Video Demonstration
 
@@ -51,16 +49,18 @@ https://www.youtube.com/watch?v=H1tEW2x7log
 # Save and Load Games 
 <img src="assets\screen shots\load and save screen.png" alt="Screen for saving and loadin game" width="800" height ="500"/>
 
+# Game Over(after dying)
+<img src="assets\screen shots\game over.png" alt="Game Over" width="800" height ="500"/>
+
 # Level Complete
 <img src="assets\screen shots\level complete.png" alt="Level Complete" width="800" height ="500"/>
 
+
 ## Supervisor
 
-- Mahir Labib Dihan
+- **Mahir Labib Dihan**
 
   - **Adjunt Lecturer**
-
-    :arrow_forward: **Contact:**
 
     Department of Computer Science and Engineering. <br>
     Bangladesh University of Engineering and Technology, <br>
