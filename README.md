@@ -54,12 +54,10 @@ Demo: https://www.youtube.com/watch?v=H1tEW2x7log
 
 ## Supervisor
 
-- Khaled Mahmud Shahriar
+- Mahir Labib Dihan
 
-  - **Assistant Professor**
-
-    :arrow_forward: **Contact:**
-
+  - **Adjunt Lecturer**
+    <!-- :arrow_forward: **Contact:** -->
     Department of Computer Science and Engineering
     Bangladesh University of Engineering and Technology
     Dhaka-1000, Bangladesh
